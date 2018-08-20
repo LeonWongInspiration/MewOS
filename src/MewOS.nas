@@ -24,7 +24,7 @@
 		DD		0xffffffff
 		DB		"MewMewOS   "
 		DB		"FAT12   "
-		TIMES 	18 DB 0
+		RESB	18
 
 ;  Program starts here
 
@@ -57,13 +57,13 @@ msg:
         DB      0x0a
 		DB		0
 
-		TIMES	0x1fe-($-$$) DB 0
+		RESB	0x7dfe-$
 
 		DB		0x55, 0xaa
 
 ; Fill up the image
 
 		DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
-		TIMES 	4600 DB 0
+		RESB	4600
 		DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
-		TIMES	1469432 DB 0
+		RESB	1469432
