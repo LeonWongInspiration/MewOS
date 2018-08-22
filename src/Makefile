@@ -12,9 +12,9 @@ img :
 	make -r MewOS.img
 
 clean :
-	-del ipl.bin
-	-del ipl.lst
+	rm ipl.bin
+	rm ipl.lst
 
 src_clean :
+	rm MewOS.img
 	make clean
-	-del MewOS.img
