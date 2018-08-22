@@ -42,6 +42,7 @@ entry:
 		MOV		DH,0
 		MOV		CL,2
 
+readloop:
 		MOV		SI,0			; Register for load errer count
 
 retry:
@@ -50,7 +51,7 @@ retry:
 		MOV		BX,0
 		MOV		DL,0x00			; drive0 (Disk A)
 		INT		0x13			; Call disk (floppy) BIOS
-		JNC		fin				; If succeed, jump to fin
+		JNC		next			; If succeed, jump to next
 		ADD		SI,1
 		CMP		SI,4			; If fail to load system sector for 4 times, 
 		JAE		error			; jump to error
@@ -58,6 +59,14 @@ retry:
 		MOV		DL,0x00
 		INT		0x13			; System reset
 		JMP		retry
+
+next:
+		MOV		AX,ES			; Memory address += 0x200 (size of a sector)
+		ADD		AX,0x0020
+		MOV		ES,AX			; Because we cannot directly add ES
+		ADD		CL,1
+		CMP		CL,18
+		JBE		readloop
 
 putloop:
 		MOV		AL,[SI]
