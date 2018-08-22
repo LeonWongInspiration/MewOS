@@ -78,9 +78,10 @@ next:
 		CMP		CH,CYLS
 		JB		readloop
 
-fin:
-		HLT						; Halt
-		JMP		fin
+; Jump to MewOS.sys and exec it
+
+		MOV		[0x0ff0],CH		; Save the number of cylinders to memory
+		JMP		0xc200
 
 error:
 		MOV		SI,msg
@@ -95,11 +96,15 @@ putloop:
 		INT		0x10			; Call GPU BIOS to refresh
 		JMP		putloop
 
+fin:
+		HLT						; Halt
+		JMP		fin
+
 msg:
 		DB		0x0a, 0x0a		; 0x0a = \n
 		DB		"load error"
 		DB		0x0a, 0x0a
-        DB      "MewOS Version 0.0.0.2"
+        DB      "MewOS Version 0.0.0.3"
         DB      0x0a
 		DB		0
 
