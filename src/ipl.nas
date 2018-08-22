@@ -1,6 +1,8 @@
 ; MewOS Boot Image Source Code
 ; TAB=4
 
+CYLS	EQU		10				; Set number of cylinders to 10
+
 		ORG		0x7c00
 
 ; First sector for FAT12
@@ -67,6 +69,21 @@ next:
 		ADD		CL,1
 		CMP		CL,18
 		JBE		readloop
+		MOV		CL,1
+		ADD		DH,1
+		CMP		DH,2
+		JB		readloop
+		MOV		DH,0
+		ADD		CH,1
+		CMP		CH,CYLS
+		JB		readloop
+
+fin:
+		HLT						; Halt
+		JMP		fin
+
+error:
+		MOV		SI,msg
 
 putloop:
 		MOV		AL,[SI]
@@ -77,13 +94,6 @@ putloop:
 		MOV		BX,15			; Character color
 		INT		0x10			; Call GPU BIOS to refresh
 		JMP		putloop
-
-error:
-		MOV		SI,msg
-
-fin:
-		HLT						; Halt
-		JMP		fin
 
 msg:
 		DB		0x0a, 0x0a		; 0x0a = \n
