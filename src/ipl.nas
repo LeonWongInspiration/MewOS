@@ -33,9 +33,32 @@ entry:
 		MOV		SS,AX
 		MOV		SP,0x7c00
 		MOV		DS,AX
-		MOV		ES,AX
 
-		MOV		SI,msg
+; Load system sector
+
+		MOV		AX,0x0820
+		MOV		ES,AX
+		MOV		CH,0			; Read system sector
+		MOV		DH,0
+		MOV		CL,2
+
+		MOV		SI,0			; Register for load errer count
+
+retry:
+		MOV		AH,0x02			; AH=0x02 : Call BIOS to read the drive
+		MOV		AL,1			; 1 sector
+		MOV		BX,0
+		MOV		DL,0x00			; drive0 (Disk A)
+		INT		0x13			; Call disk (floppy) BIOS
+		JNC		fin				; If succeed, jump to fin
+		ADD		SI,1
+		CMP		SI,4			; If fail to load system sector for 4 times, 
+		JAE		error			; jump to error
+		MOV		AH,0x00
+		MOV		DL,0x00
+		INT		0x13			; System reset
+		JMP		retry
+
 putloop:
 		MOV		AL,[SI]
 		ADD		SI,1
@@ -45,15 +68,19 @@ putloop:
 		MOV		BX,15			; Character color
 		INT		0x10			; Call GPU BIOS to refresh
 		JMP		putloop
+
+error:
+		MOV		SI,msg
+
 fin:
 		HLT						; Halt
 		JMP		fin
 
 msg:
 		DB		0x0a, 0x0a		; 0x0a = \n
-		DB		"hello, world"
-		DB		0x0a
-        DB      "MewOS Version 0.0.0.1"
+		DB		"load error"
+		DB		0x0a, 0x0a
+        DB      "MewOS Version 0.0.0.2"
         DB      0x0a
 		DB		0
 
