@@ -1,4 +1,6 @@
 TOOLPATH = ../tools/
+INCLUDE_PATH = ../src/include/
+
 MAKE = make -r
 NASK = $(TOOLPATH)nask
 EDIMG = $(TOOLPATH)edimg
