@@ -1,6 +1,21 @@
 # 更新日志 ChangeLog
 
-20180823 04:50 by  王陆洋 Leon Wong
+20180824 00:30 by 王陆洋 Leon Wong
+
+Version: 0.0.1.0
+
+Contents:
+
+* Add asm functions for C to control devices.
+* Add palette support.
+* Add drawing interfaces.
+* 加入汇编IO函数，以便在C语言中控制设备。
+* 加入调色盘。
+* 允许在系统界面上绘画。
+
+---
+
+20180823 04:50 by 王陆洋 Leon Wong
 
 Version: 0.0.0.3 (not finished)
 

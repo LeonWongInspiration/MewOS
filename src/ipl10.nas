@@ -104,7 +104,7 @@ msg:
 		DB		0x0a, 0x0a		; 0x0a = \n
 		DB		"load error"
 		DB		0x0a, 0x0a
-        DB      "MewOS Version 0.0.0.3"
+        DB      "MewOS Version 0.0.1.0"
         DB      0x0a
 		DB		0
 
