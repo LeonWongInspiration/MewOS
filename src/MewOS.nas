@@ -1,7 +1,7 @@
 ; MewOS main system file
 ; TAB=4
 
-C_ENTRY	EQU		0x00280000		; C system file entry
+CENTRY	EQU		0x00280000		; C system file entry
 DSKCAC	EQU		0x00100000		; Address of disk cache
 DSKCAC0 EQU		0x00008000		; Address of disk cache under real mode
 
@@ -52,12 +52,12 @@ VRAM	EQU		0x0ff8			; The address of VRAM
 
 ; Switch to protected mode
 
-[INSTREST "'i486p"]				; Disclaim support for 486 instructions
+[INSTRSET "i486p"]				; Disclaim support for 486 instructions
 
 		LGDT	[GDTR0]			; Set temp GDT
 		MOV		EAX,CR0
 		AND		EAX,0x7fffffff	; Set the 31st bit to 0 to disallow pages
-		ORG		EAX,0x00000001	; Set the 0th bit to 1 to allow mode switch
+		OR		EAX,0x00000001	; Set the 0th bit to 1 to allow mode switch
 		MOV		CR0,EAX
 		JMP		pipelineflush
 
@@ -71,8 +71,8 @@ pipelineflush:
 
 ; Load C System Entry
 
-		MOV		ESI,centry		; Source
-		MOV		EDI,C_ENTRY
+		MOV		ESI,clangentry		; Source
+		MOV		EDI,CENTRY
 		MOV		ECX,512*1024/4
 		CALL	memcpy
 
@@ -97,7 +97,7 @@ pipelineflush:
 ; give permit to c_entry
 
 ; Start C Language Entry
-		MOV		EBX,BOTPAK
+		MOV		EBX,CENTRY
 		MOV		ECX,[EBX+16]
 		ADD		ECX,3
 		SHR		ECX,2
@@ -139,4 +139,4 @@ GDTR0:
 
 		ALIGNB	16
 
-centry:
+clangentry:

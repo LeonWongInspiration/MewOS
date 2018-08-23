@@ -11,6 +11,9 @@
 #define	RAND_MAX	0x7fff
 #define srand(seed)			(void) (rand_seed = (seed))
 
+#define EXIT_SUCCESS		0
+#define EXIT_FAILURE		1
+
 int abs(int n);
 double atof(const char *s);
 int atoi(const char *s);
@@ -24,6 +27,9 @@ unsigned long strtoul(const char *s, const char **endp, int base);
 
 void *malloc(unsigned int nbytes);
 void free(void *ap);
+void exit(int status);
+#define abort()		exit(EXIT_FAILURE)
+int system(const char *s);
 
 #if (defined(__cplusplus))
 	}
