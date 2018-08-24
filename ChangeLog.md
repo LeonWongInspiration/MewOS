@@ -1,5 +1,22 @@
 # 更新日志 ChangeLog
 
+20180825 03:30 by 王陆洋 Leon Wong
+
+Version: 0.0.2.0
+
+Contents:
+
+* Add fonts.
+* Now we can show texts on the screen.
+* Fix the bug when fix a box with wrong diagonal.
+* Group codes into several files.
+* 加入字体（目前使用hankaku免费字体，后期会进行调整）
+* 现在可以在屏幕上显示文字了
+* 修复了使用错误的对角线画方形时的bug
+* 将代码分类
+
+---
+
 20180824 00:30 by 王陆洋 Leon Wong
 
 Version: 0.0.1.0
