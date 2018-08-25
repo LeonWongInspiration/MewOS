@@ -2,3 +2,16 @@
 Chart.md
 src/MewOS.img
 ._ChangeLog.md
+src/*.lst
+src/*.map
+src/*.gas
+src/*.bin
+src/*.obj
+src/*.sys
+src/*.bim
+src/*.hrb
+
+src/*.nas
+!src/asm_funcs.nas
+!src/ipl10.nas
+!src/MewOS.nas

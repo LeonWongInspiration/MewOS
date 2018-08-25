@@ -1,7 +1,8 @@
 TOOLPATH = ../tools/
 INCLUDE_PATH = ../src/include/
 
-OBJ_FILES = C_Entry.obj asm_funcs.obj MewFont.obj Fonts.obj VisualFuncs.obj Mouse.obj GDT.obj IDT.obj
+OBJ_FILES = C_Entry.obj asm_funcs.obj MewFont.obj Fonts.obj \
+ VisualFuncs.obj Mouse.obj GDT.obj IDT.obj
 
 MAKE = make -r
 NASK = $(TOOLPATH)nask
@@ -74,6 +75,7 @@ clean :
 	-$(DEL) *.obj
 	-$(DEL) Fonts.nas
 	-$(DEL) VisualFuncs.nas
+	-$(DEL) Mouse.nas
 	-$(DEL) C_Entry.nas
 	-$(DEL) C_Entry.map
 	-$(DEL) C_Entry.bim

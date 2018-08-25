@@ -25,7 +25,7 @@ typedef struct SEGMENT_DESCRIPTOR{
 } SEGMENT_DESCRIPTOR;
 
 /// GDT Address got from asm files.
-const static void* GDTAddress = 0x00270000;
+const static void* GDTAddress = (void *) 0x00270000;
 
 /**
  * @brief: init GDT.

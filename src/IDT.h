@@ -24,7 +24,7 @@ typedef struct GATE_DESCRIPTOR {
 } GATE_DESCRIPTOR;
 
 /// IDT Address got from asm files.
-const static void* IDTAddress = 0x0026f800;
+const static void* IDTAddress = (void *) 0x0026f800;
 
 /**
  * @brief: init IDT.
