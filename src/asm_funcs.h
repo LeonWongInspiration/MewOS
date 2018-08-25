@@ -41,4 +41,18 @@ int io_load_eflags();
  */ 
 void io_store_eflags(int eflags);
 
+/**
+ * @brief: Load GDTR.
+ * @param: int limit: Limitation (see GDT)
+ * @param: int addr: The address of the gdt.
+ */ 
+void load_gdtr(int limit, int addr);
+
+/**
+ * @brief: Load IDTR.
+ * @param: int limit: Limitation (see IDT)
+ * @param: int addr: The address of the idt.
+ */ 
+void load_idtr(int limit, int addr);
+
 #endif

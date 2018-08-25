@@ -1,0 +1,85 @@
+     1 00000000                                 [FORMAT "WCOFF"]
+     2 00000000                                 [INSTRSET "i486p"]
+     3 00000000                                 [OPTIMIZE 1]
+     4 00000000                                 [OPTION 1]
+     5 00000000                                 [BITS 32]
+     6 00000000                                 	EXTERN	_GDTAddress
+     7 00000000                                 	EXTERN	_load_gdtr
+     8 00000000                                 [FILE "GDT.c"]
+     9                                          [SECTION .data]
+    10 00000000                                 	ALIGNB	4
+    11 00000000                                 _GDTAddress:
+    12 00000000 00270000                        	DD	2555904
+    13                                          [SECTION .text]
+    14 00000000                                 	GLOBAL	_initGDT
+    15 00000000                                 _initGDT:
+    16 00000000 55                              	PUSH	EBP
+    17 00000001 89 E5                           	MOV	EBP,ESP
+    18 00000003 57                              	PUSH	EDI
+    19 00000004 56                              	PUSH	ESI
+    20 00000005 8B 35 [00000000]                	MOV	ESI,DWORD [_GDTAddress]
+    21 0000000B 53                              	PUSH	EBX
+    22 0000000C 89 F3                           	MOV	EBX,ESI
+    23 0000000E 8D BE 0000FFF8                  	LEA	EDI,DWORD [65528+ESI]
+    24 00000014                                 L6:
+    25 00000014 6A 00                           	PUSH	0
+    26 00000016 6A 00                           	PUSH	0
+    27 00000018 6A 00                           	PUSH	0
+    28 0000001A 53                              	PUSH	EBX
+    29 0000001B 83 C3 08                        	ADD	EBX,8
+    30 0000001E E8 0000004C                     	CALL	_setGDT
+    31 00000023 83 C4 10                        	ADD	ESP,16
+    32 00000026 39 FB                           	CMP	EBX,EDI
+    33 00000028 7E EA                           	JLE	L6
+    34 0000002A 68 00004092                     	PUSH	16530
+    35 0000002F 8D 46 08                        	LEA	EAX,DWORD [8+ESI]
+    36 00000032 6A 00                           	PUSH	0
+    37 00000034 6A FF                           	PUSH	-1
+    38 00000036 50                              	PUSH	EAX
+    39 00000037 E8 00000033                     	CALL	_setGDT
+    40 0000003C 8D 46 10                        	LEA	EAX,DWORD [16+ESI]
+    41 0000003F 68 0000409A                     	PUSH	16538
+    42 00000044 68 00280000                     	PUSH	2621440
+    43 00000049 68 0007FFFF                     	PUSH	524287
+    44 0000004E 50                              	PUSH	EAX
+    45 0000004F E8 0000001B                     	CALL	_setGDT
+    46 00000054 83 C4 20                        	ADD	ESP,32
+    47 00000057 FF 35 [00000000]                	PUSH	DWORD [_GDTAddress]
+    48 0000005D 68 0000FFFF                     	PUSH	65535
+    49 00000062 E8 [00000000]                   	CALL	_load_gdtr
+    50 00000067 8D 65 F4                        	LEA	ESP,DWORD [-12+EBP]
+    51 0000006A 5B                              	POP	EBX
+    52 0000006B 5E                              	POP	ESI
+    53 0000006C 5F                              	POP	EDI
+    54 0000006D 5D                              	POP	EBP
+    55 0000006E C3                              	RET
+    56 0000006F                                 	GLOBAL	_setGDT
+    57 0000006F                                 _setGDT:
+    58 0000006F 55                              	PUSH	EBP
+    59 00000070 89 E5                           	MOV	EBP,ESP
+    60 00000072 53                              	PUSH	EBX
+    61 00000073 8B 55 0C                        	MOV	EDX,DWORD [12+EBP]
+    62 00000076 8B 4D 10                        	MOV	ECX,DWORD [16+EBP]
+    63 00000079 8B 5D 08                        	MOV	EBX,DWORD [8+EBP]
+    64 0000007C 8B 45 14                        	MOV	EAX,DWORD [20+EBP]
+    65 0000007F 81 FA 000FFFFF                  	CMP	EDX,1048575
+    66 00000085 76 08                           	JBE	L10
+    67 00000087 C1 EA 0C                        	SHR	EDX,12
+    68 0000008A 0D 00008000                     	OR	EAX,32768
+    69 0000008F                                 L10:
+    70 0000008F 66 89 13                        	MOV	WORD [EBX],DX
+    71 00000092 88 43 05                        	MOV	BYTE [5+EBX],AL
+    72 00000095 C1 EA 10                        	SHR	EDX,16
+    73 00000098 C1 F8 08                        	SAR	EAX,8
+    74 0000009B 83 E2 0F                        	AND	EDX,15
+    75 0000009E 66 89 4B 02                     	MOV	WORD [2+EBX],CX
+    76 000000A2 83 E0 F0                        	AND	EAX,-16
+    77 000000A5 C1 F9 10                        	SAR	ECX,16
+    78 000000A8 09 C2                           	OR	EDX,EAX
+    79 000000AA 88 4B 04                        	MOV	BYTE [4+EBX],CL
+    80 000000AD 88 53 06                        	MOV	BYTE [6+EBX],DL
+    81 000000B0 C1 F9 08                        	SAR	ECX,8
+    82 000000B3 88 4B 07                        	MOV	BYTE [7+EBX],CL
+    83 000000B6 5B                              	POP	EBX
+    84 000000B7 5D                              	POP	EBP
+    85 000000B8 C3                              	RET

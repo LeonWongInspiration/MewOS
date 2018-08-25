@@ -1,3 +1,9 @@
+/**
+ * Copyright MewOS Library for C Language
+ * @author: Leon Wong
+ * MIT Liscense.
+ */ 
+
 #if (!defined(STDLIB_H))
 
 #define STDLIB_H	1
@@ -6,7 +12,7 @@
 	extern "C" {
 #endif
 
-#include <stddef.h>		/* size_t */
+#include "stddef.h"	/* size_t */
 
 #define	RAND_MAX	0x7fff
 #define srand(seed)			(void) (rand_seed = (seed))

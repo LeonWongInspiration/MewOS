@@ -20,7 +20,6 @@ void init_palette(){
 		0x84, 0x84, 0x84	/* 15:Dark gray */
 	};
 	set_palette(0, 15, table_rgb);
-	return;
 }
 
 void set_palette(int start, int end, unsigned char *colorInRGB){
@@ -57,7 +56,6 @@ void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0, i
 		for (x = x0; x <= x1; x++)
 			vram[y * xsize + x] = c;
 	}
-	return;
 }
 
 void init_screen(char *vram, int x, int y){
@@ -77,5 +75,13 @@ void init_screen(char *vram, int x, int y){
 	boxfill8(vram, x, COL8_848484, x - 47, y - 23, x - 47, y - 4);
 	boxfill8(vram, x, COL8_FFFFFF, x - 47, y - 3, x - 4, y - 3);
 	boxfill8(vram, x, COL8_FFFFFF, x - 3, y - 24, x - 3, y -  3);
-	return;
+}
+
+void putblock8_8(char *vram, int vxsize, int pxsize, int pysize, int px0, int py0, char *buf, int bxsize){
+	int x, y;
+	for (y = 0; y < pysize; y++) {
+		for (x = 0; x < pxsize; x++) {
+			vram[(py0 + y) * vxsize + (px0 + x)] = buf[y * bxsize + x];
+		}
+	}
 }

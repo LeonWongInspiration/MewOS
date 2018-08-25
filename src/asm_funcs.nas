@@ -21,6 +21,8 @@
 		GLOBAL 	_io_out32
 		GLOBAL	_io_load_eflags
 		GLOBAL	_io_store_eflags
+		GLOBAL	_load_gdtr
+		GLOBAL	_load_idtr
 
 ; Function realization
 
@@ -87,4 +89,16 @@ _io_store_eflags:	; void io_store_eflags(int eflags);
 		MOV		EAX,[ESP+4]
 		PUSH	EAX
 		POPFD		; POP EFLAGS
+		RET
+
+_load_gdtr:		; void load_gdtr(int limit, int addr);
+		MOV		AX,[ESP+4]		; limit
+		MOV		[ESP+6],AX
+		LGDT	[ESP+6]
+		RET
+
+_load_idtr:		; void load_idtr(int limit, int addr);
+		MOV		AX,[ESP+4]		; limit
+		MOV		[ESP+6],AX
+		LIDT	[ESP+6]
 		RET

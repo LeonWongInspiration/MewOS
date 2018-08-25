@@ -1,7 +1,7 @@
 /** Functions to Modify UI
  * 
  * @author: Leon Wong
- * @build: 201808250330
+ * @build: 201808260151
  * @brief: This file includes some functions which can change the data in the VRAM, thus change what shows on the screen.
  * @usage: This file should be both included and compiled.
  * 
@@ -9,6 +9,8 @@
 
 #if (!defined(VISUAL_FUNCS_H))
 #define VISUAL_FUNCS_H 1
+
+#include "asm_funcs.h"
 
 /**
  * @brief: Init the palette which includes 16 colors we use.
@@ -47,6 +49,19 @@ void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0, i
  * @warning: The resolution should be positive!
  */ 
 void init_screen(char *vram, int x, int y);
+
+/**
+ * @brief: Put a 8*8 bit color block onto the screen.
+ * @param: char *vram: The address of VRAM.
+ * @param: int vxsize: X resolution.
+ * @param: int pxsize: X size of the block.
+ * @param: int pysize: Y size of the block.
+ * @param: int px0: Left top position x.
+ * @param: int py0: Left top position y.
+ * @param: char *buf: The block's picture.
+ * @param: bxsize: same as pxsize, but used sometimes differently.
+ */ 
+void putblock8_8(char *vram, int vxsize, int pxsize, int pysize, int px0, int py0, char *buf, int bxsize);
 
 // Color RGB consts
 const static int COL8_000000 = 0;

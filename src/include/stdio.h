@@ -1,3 +1,9 @@
+/**
+ * Copyright MewOS Library for C Language
+ * @author: Leon Wong
+ * MIT Liscense.
+ */ 
+
 #if (!defined(STDIO_H))
 
 #define STDIO_H	1
@@ -10,7 +16,7 @@
 	#define NULL	((void *) 0)
 #endif
 
-#include <stdarg.h>
+#include "stdarg.h"
 
 /* golibc */
 int sprintf(char *s, const char *format, ...);
