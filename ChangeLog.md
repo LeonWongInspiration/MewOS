@@ -1,5 +1,27 @@
 # 更新日志 ChangeLog
 
+20180826 03:36 by 王陆洋 Leon Wong
+
+Version: 0.0.2.1
+
+Contents:
+
+* Init mouse with a picture.
+* Add GDT Management.
+* Add IDT Management.
+* Use modified C stdio.
+* 初始化鼠标。
+* 加入GDT管理。
+* 加入IDT管理。
+* 魔改了C的头文件stdio.h，允许使用特别的格式化输出。
+
+Know issues:
+
+* Mouse cannot move.
+* 由于尚未完全实现中断机制，鼠标不能移动。
+
+---
+
 20180825 03:30 by 王陆洋 Leon Wong
 
 Version: 0.0.2.0
