@@ -23,7 +23,12 @@ void io_cli();
 /**
  * @brief: STI instruct.
  */
-void io_sti(); 
+void io_sti();
+
+/**
+ * @brief: do STI HLT RET.
+ */ 
+void io_stihlt();
 
 /**
  * @brief: Send out 8bits to a port.

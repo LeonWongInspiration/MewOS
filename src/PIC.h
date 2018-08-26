@@ -14,6 +14,7 @@
 #include "BootInfo.h"
 #include "VisualFuncs.h"
 #include "Fonts.h"
+#include "Keyboard.h"
 
 /// Relative addresses
 const static int PIC0_ICW1 = 0x0020; /// ICW: Initial Control Word
@@ -35,8 +36,9 @@ const static int PIC1_ICW4 = 0x00a1;
 void initPIC();
 
 /**
- * @brief: Handle interrupts from keyboard PS/2.
+ * @brief: Receive interrupts from keyboard and call functions in keyboard.c to handle it.
  * @param: int *esp: ESP Register.
+ * @seealso: keyboardInterruptHandler.
  */ 
 void inthandler21(int *esp);
 
