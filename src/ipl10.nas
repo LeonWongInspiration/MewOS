@@ -103,9 +103,12 @@ fin:
 msg:
 		DB		0x0a, 0x0a		; 0x0a = \n
 		DB		"load error"
-		DB		0x0a, 0x0a
-        DB      "MewOS Version 0.0.1.0"
-        DB      0x0a
+		DB		0x0a, 0x0d		; 0x0d = \r
+        DB      "MewOS Initial Program Loader Failed"
+        DB      0x0a, 0x0d
+		DB		"Please check your settings if there's something wrong."
+		DB		0x0a, 0x0d, 0x0a
+		DB		"Mew Mew Mew~"
 		DB		0
 
 		RESB	0x7dfe-$

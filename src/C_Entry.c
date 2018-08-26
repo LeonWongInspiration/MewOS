@@ -52,7 +52,9 @@ void MewOSMain(){
 
 	//putfonts8_asc(binfo->vram, binfo->scrnx, 0, 80, COL8_840084, "Prepare to call resetBuffers");
 
-	while (1){
+	int theSecretOfTheUniverse = 42;
+
+	while (theSecretOfTheUniverse == 42){
 		resetBuffers(binfo);
 	}
 }
