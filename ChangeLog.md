@@ -1,5 +1,23 @@
 # 更新日志 ChangeLog
 
+20180827 03:33 by 王陆洋 Leon Wong
+
+Version: 0.0.2.2
+
+Contents:
+
+* Enable interrupts handling from keyboard.
+* Add PIC Management.
+* 允许处理来自键盘的中断。
+* 加入PIC管理。
+
+Know issues:
+
+- Mouse cannot move.
+- 由于尚未完全实现中断机制，鼠标不能移动。
+
+---
+
 20180826 03:36 by 王陆洋 Leon Wong
 
 Version: 0.0.2.1

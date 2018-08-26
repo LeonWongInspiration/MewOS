@@ -77,6 +77,9 @@ clean :
 	-$(DEL) VisualFuncs.nas
 	-$(DEL) Mouse.nas
 	-$(DEL) C_Entry.nas
+	-$(DEL) GDT.nas
+	-$(DEL) IDT.nas
+	-$(DEL) PIC.nas
 	-$(DEL) C_Entry.map
 	-$(DEL) C_Entry.bim
 	-$(DEL) C_Entry.hrb
