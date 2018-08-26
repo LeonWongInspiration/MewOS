@@ -21,6 +21,11 @@ void io_hlt();
 void io_cli();
 
 /**
+ * @brief: STI instruct.
+ */
+void io_sti(); 
+
+/**
  * @brief: Send out 8bits to a port.
  * @param: int port: The port to send data.
  * @param: int data: The data to send.
@@ -54,5 +59,23 @@ void load_gdtr(int limit, int addr);
  * @param: int addr: The address of the idt.
  */ 
 void load_idtr(int limit, int addr);
+
+/**
+ * @brief: Interrupt handler for Keyboard PS/2
+ * @seealso: inthandler21
+ */ 
+void asm_inthandler21();
+
+/**
+ * @brief: Interrupt handler for IRQ7
+ * @seealso: inthandler27
+ */ 
+void asm_inthandler27();
+
+/**
+ * @brief: Interrupt handler for Mouse PS/2
+ * @seealso: inthandler2c
+ */ 
+void asm_inthandler2c();
 
 #endif

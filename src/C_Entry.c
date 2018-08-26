@@ -12,10 +12,11 @@
 #include "Mouse.h"
 #include "GDT.h"
 #include "IDT.h"
+#include "PIC.h"
 #include "include\stdio.h"
 #include "include\stdlib.h"
 
-static const char *version = "MewOS 0.0.2.1";
+static const char *version = "MewOS 0.0.2.2";
 
 /**
  * ENTRY FUNCTION!
@@ -41,20 +42,23 @@ void MewOSMain(){
 	while (1){
 		io_hlt();
 	}
-	
-	free(mouse);
 }
 
 void do_init(BootInfo *binfo, char *mouse){
-	init_palette();
+
 	initGDT();
 	initIDT();
+	initPIC();
+
+    io_sti();
+
+	init_palette();
 	init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
-	putfonts8_asc(binfo->vram, binfo->scrnx, 8, 8, COL8_FFFFFF, version);
-	putfonts8_asc(binfo->vram, binfo->scrnx, 31, 31, COL8_000000, "hello, world!");
-	putfonts8_asc(binfo->vram, binfo->scrnx, 30, 30, COL8_FFFFFF, "hello, world!");
 	init_mouse_cursor8(mouse, COL8_008484);
 	putblock8_8(binfo->vram, binfo->scrnx, 16, 16, (binfo->scrnx - 16) / 2, // These magic numbers are set to make mouse at the x center
 	 (binfo->scrny - 28 - 16) / 2, // These magic numbers are set to make the mouse at the y center (without the bar on the bottom)
 	 mouse, 16);
+
+	io_out8(PIC0_IMR, 0xf9);
+	io_out8(PIC1_IMR, 0xef);
 }

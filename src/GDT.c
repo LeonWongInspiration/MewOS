@@ -6,8 +6,8 @@ void initGDT(){
     for (i = 0; i < 8192; ++i){
         setGDT(gdt + i, 0, 0, 0);
     }
-	setGDT(gdt + 1, 0xffffffff, 0x00000000, 0x4092);
-	setGDT(gdt + 2, 0x0007ffff, 0x00280000, 0x409a);
+	setGDT(gdt + 1, 0xffffffff, 0x00000000, AR_DATA32_RW);
+	setGDT(gdt + 2, LIMIT_C_ALL, ADR_C_ALL, AR_CODE32_ER);
 	load_gdtr(0xffff, (int)GDTAddress);
 }
 

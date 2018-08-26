@@ -1,7 +1,7 @@
 /** Global (Segment) Descriptor Table (GDT) Management
  * 
  * @author: Leon Wong
- * @build: 201808260303
+ * @build: 201808270308
  * @brief: This file includes some functions about GDT.
  * @usage: This file should be both included and compiled.
  * 
@@ -11,6 +11,18 @@
 #define GDT_H 1
 
 #include "asm_funcs.h"
+
+/// Address of all C system program.
+const static int ADR_C_ALL = 0x00280000;
+
+/// Limit System Segment for C system files.
+const static int LIMIT_C_ALL = 0x0007ffff;
+
+/// Access Right
+const static int AR_DATA32_RW = 0x4092;
+
+/// Access Right
+const static int AR_CODE32_ER = 0x409a;
 
 /**
  * 8 byte GDT info

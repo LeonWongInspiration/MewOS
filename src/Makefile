@@ -2,7 +2,7 @@ TOOLPATH = ../tools/
 INCLUDE_PATH = ../src/include/
 
 OBJ_FILES = C_Entry.obj asm_funcs.obj MewFont.obj Fonts.obj \
- VisualFuncs.obj Mouse.obj GDT.obj IDT.obj
+ VisualFuncs.obj Mouse.obj GDT.obj IDT.obj PIC.obj
 
 MAKE = make -r
 NASK = $(TOOLPATH)nask

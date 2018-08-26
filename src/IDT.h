@@ -1,7 +1,7 @@
 /** Interrupt Descriptor Table (IDT) Management
  * 
  * @author: Leon Wong
- * @build: 201808260303
+ * @build: 201808270304
  * @brief: This file includes some functions about IDT.
  * @usage: This file should be both included and compiled.
  * 
@@ -11,6 +11,9 @@
 #define IDT_H 1
 
 #include "asm_funcs.h"
+
+/// Access Right for IDT, which means Allow Interrupts
+const static int AR_INTGATE32 = 0x008e;
 
 /**
  * 8 byte IDT info.
