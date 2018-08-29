@@ -105,6 +105,20 @@ void do_init(BootInfo *binfo, char *mouse, unsigned char *keyboardBufferArray, u
 
 	enableMouse(&mouseDecoder);
 
+	//------ Below are about memory management init ------//
+	unsigned int totalMem;
+	MEMORY_FREE_TABLE *memoryFreeTable = (MEMORY_FREE_TABLE *)MEMORY_MANAGER_ADDR;
+	totalMem = memtest(0x00400000, 0xbfffffff);
+	memoryFreeTableInit(memoryFreeTable);
+	freeMemoryWithAddrAndSize(memoryFreeTable, 0x00001000, 0x0009e000);
+	freeMemoryWithAddrAndSize(memoryFreeTable, 0x00400000, totalMem - 0x00400000);
+
+	char tmp[30];
+	sprintf(tmp, "Total Memory: %dMB, Free: %dKB", 
+		totalMem / (1024*1024), getAvailableMemorySpace(memoryFreeTable) / 1024);
+	
+	putfonts8_asc(binfo->vram, binfo->scrnx, 0, 32, COL8_FFFFFF, tmp);
+
 	// putfonts8_asc(binfo->vram, binfo->scrnx, 0, 80, COL8_840084, "Init finished");
 }
 
