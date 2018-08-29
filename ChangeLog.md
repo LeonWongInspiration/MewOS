@@ -1,5 +1,16 @@
 # 更新日志 ChangeLog
 
+20180830 03:12 by 王陆洋 Leon Wong
+
+Version: 0.0.3.0
+
+Contents:
+
+* Advanced Mouse & Keyboard interrupts handling.
+*  对键盘和鼠标的中断处理，能够显示二者的状态和数据。
+
+---
+
 20180827 03:33 by 王陆洋 Leon Wong
 
 Version: 0.0.2.2
