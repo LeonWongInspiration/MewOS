@@ -31,6 +31,13 @@ void io_sti();
 void io_stihlt();
 
 /**
+ * @brief: Read in 8bits from a port.
+ * @param: int port: The port to send data.
+ * @warning: Only the loew 8 bits of the data will be used!
+ */ 
+int io_in8(int port);
+
+/**
  * @brief: Send out 8bits to a port.
  * @param: int port: The port to send data.
  * @param: int data: The data to send.

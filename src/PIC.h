@@ -15,6 +15,7 @@
 #include "VisualFuncs.h"
 #include "Fonts.h"
 #include "Keyboard.h"
+#include "Mouse.h"
 
 /// Relative addresses
 const static int PIC0_ICW1 = 0x0020; /// ICW: Initial Control Word
@@ -45,6 +46,7 @@ void inthandler21(int *esp);
 /**
  * @brief: Handle interrupts from mouse PS/2.
  * @param: int *esp: ESP Register.
+ * @seealso: mouseInterruptHandler.
  */ 
 void inthandler2c(int *esp);
 

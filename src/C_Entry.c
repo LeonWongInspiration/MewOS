@@ -1,7 +1,7 @@
 /**
  * @brief: The Entry of C system files.
  * @author: Leon Wong
- * @build: 201808260241
+ * @build: 201808300145
  * @usage: Be compiled!
  */ 
 
@@ -18,9 +18,11 @@
 #include "include\stdio.h"
 #include "include\stdlib.h"
 
-static const char *version = "MewOS 0.0.2.2";
+static const char *version = "MewOS 0.0.3.0";
 
 extern FIFO8 keyboardBuffer;
+extern FIFO8 mouseBuffer;
+extern MOUSE_DECODER mouseDecoder;
 
 /**
  * ENTRY FUNCTION!
@@ -30,7 +32,7 @@ void MewOSMain();
 /**
  * Reset some buffers, keyboard, etc.
  */ 
-void resetBuffers();
+void resetBuffers(BootInfo *binfo);
 
 /**
  * @brief: Init the OS, for example: initial UI.
@@ -40,15 +42,16 @@ void resetBuffers();
  * @warning: The mouse array should be at lease 256bytes!
  * @seealso: init_mouse_cursor8
  */ 
-void do_init(BootInfo *binfo, char *mouse, unsigned char *keyboardBuffer);
+void do_init(BootInfo *binfo, char *mouse, unsigned char *keyboardBuffer, unsigned char *mouseBuffer);
 
 void MewOSMain(){
     BootInfo *binfo = (BootInfo *) 0x0ff0;
 	//char *mouse = (char *) malloc(256 * sizeof(char));
 	char mouse[256];
-	char keyboardBuffer[32];
+	char keyboardBufferArray[32];
+	char mouseBufferArray[128];
 
-	do_init(binfo, mouse, keyboardBuffer);
+	do_init(binfo, mouse, keyboardBufferArray, mouseBufferArray);
 
 	//putfonts8_asc(binfo->vram, binfo->scrnx, 0, 80, COL8_840084, "Prepare to call resetBuffers");
 
@@ -59,7 +62,7 @@ void MewOSMain(){
 	}
 }
 
-void do_init(BootInfo *binfo, char *mouse, unsigned char *keyboardBuffer){
+void do_init(BootInfo *binfo, char *mouse, unsigned char *keyboardBufferArray, unsigned char *mouseBufferArray){
 
 	initGDT();
 	initIDT();
@@ -68,10 +71,23 @@ void do_init(BootInfo *binfo, char *mouse, unsigned char *keyboardBuffer){
     io_sti();
 
 	// Init keyboard buffer.
-	initKeyboardBuffer(keyboardBuffer, 32);
+	initKeyboardBuffer(keyboardBufferArray, 32);
+
+	// Init mouse buffer.
+	initMouseBuffer(mouseBufferArray, 128);
+	// Init MouseDecoder
+	mouseDecoder.decodeBuffer[0] = 0;
+	mouseDecoder.decodeBuffer[1] = 0;
+	mouseDecoder.decodeBuffer[2] = 0;
+	mouseDecoder.btn = 0;
+	mouseDecoder.phase = 0;
+	mouseDecoder.x = (binfo->scrnx - 16) / 2;
+	mouseDecoder.y = (binfo->scrny - 28 - 16) / 2;
 
 	io_out8(PIC0_IMR, 0xf9);
 	io_out8(PIC1_IMR, 0xef);
+
+	initKeyboard();
 
 	init_palette();
 	init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
@@ -80,23 +96,47 @@ void do_init(BootInfo *binfo, char *mouse, unsigned char *keyboardBuffer){
 	 (binfo->scrny - 28 - 16) / 2, // These magic numbers are set to make the mouse at the y center (without the bar on the bottom)
 	 mouse, 16);
 
-	//putfonts8_asc(binfo->vram, binfo->scrnx, 0, 80, COL8_840084, "Init finished");
+	enableMouse(&mouseDecoder);
+
+	// putfonts8_asc(binfo->vram, binfo->scrnx, 0, 80, COL8_840084, "Init finished");
 }
 
 void resetBuffers(BootInfo *binfo){
 	io_cli(); // Temporaly disallow interrupts.
-	if (fifo8_status(&keyboardBuffer) == 0) {
-		io_stihlt(); // Cannot be replace with io_sti();io_cli();
-					 // Or, interrupts coming between the two instructions will be ignored.
-		//putfonts8_asc(binfo->vram, binfo->scrnx, 0, 60, COL8_840084, "Keyboard Not Available");
+
+	char s[40]; // A buffer to show strings.
+
+	// Deal with keyboard & mouse buffer.
+	if (fifo8_status(&keyboardBuffer) + fifo8_status(&mouseBuffer) == 0) {
+		// putfonts8_asc(binfo->vram, binfo->scrnx, 0, 16, COL8_FFFFFF, "No KB&Mouse IRQ found");
+		io_stihlt();
 	} else {
-		//putfonts8_asc(binfo->vram, binfo->scrnx, 0, 60, COL8_840084, "Reset Buffers Called");
-		unsigned char c;
-		io_sti();
-		char s[40];
-		fifo8_get(&keyboardBuffer, &c);
-		sprintf(s, "%02X", (int)c);
-		boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 0, 16, 15, 31);
-		putfonts8_asc(binfo->vram, binfo->scrnx, 0, 16, COL8_FFFFFF, s);
+		if (fifo8_status(&keyboardBuffer) != 0) {
+			unsigned char i; 
+			fifo8_get(&keyboardBuffer, &i);
+			io_sti();
+			sprintf(s, "%02X", i);
+			boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 0, 16, 15, 31);
+			putfonts8_asc(binfo->vram, binfo->scrnx, 0, 16, COL8_FFFFFF, s);
+		}
+		else if (fifo8_status(&mouseBuffer) != 0) {
+			unsigned char i; 
+			fifo8_get(&mouseBuffer, &i);
+			io_sti();
+			if (mouseDecode(&mouseDecoder, i) != 0) {
+				sprintf(s, "[lcr %4d %4d]", mouseDecoder.x, mouseDecoder.y);
+				if ((mouseDecoder.btn & 0x01) != 0) {
+					s[1] = 'L';
+				}
+				if ((mouseDecoder.btn & 0x02) != 0) {
+					s[3] = 'R';
+				}
+				if ((mouseDecoder.btn & 0x04) != 0) {
+					s[2] = 'C';
+				}
+				boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 32, 16, 32 + 15 * 8 - 1, 31);
+				putfonts8_asc(binfo->vram, binfo->scrnx, 32, 16, COL8_FFFFFF, s);
+			}
+		}
 	}
 }
