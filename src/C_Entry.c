@@ -15,10 +15,12 @@
 #include "PIC.h"
 #include "Keyboard.h"
 #include "FIFOBuffer.h"
+#include "Memorie.h"
+
 #include "include\stdio.h"
 #include "include\stdlib.h"
 
-static const char *version = "MewOS 0.0.3.0";
+static const char *version = "MewOS 0.0.3.1";
 
 extern FIFO8 keyboardBuffer;
 extern FIFO8 mouseBuffer;
@@ -52,6 +54,11 @@ void MewOSMain(){
 	char mouseBufferArray[128];
 
 	do_init(binfo, mouse, keyboardBufferArray, mouseBufferArray);
+
+	int i = memtest(0x00400000, 0xbfffffff) / (1024 * 1024);
+	char tmp[40];
+	sprintf(tmp, "Available memory: %dMB", i);
+	putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, COL8_FFFFFF, tmp);
 
 	//putfonts8_asc(binfo->vram, binfo->scrnx, 0, 80, COL8_840084, "Prepare to call resetBuffers");
 

@@ -90,4 +90,22 @@ void asm_inthandler27();
  */ 
 void asm_inthandler2c();
 
+/**
+ * @brief: Read CR0
+ * @return: (int) CR0
+ */ 
+int load_cr0();
+
+/**
+ * @brief: Load CR0
+ * @param: (int) cr0: CR0 value to be loaded
+ */ 
+void store_cr0(int cr0);
+
+/**
+ * @brief: The actual part when exec memtest.
+ * @seealso: memtest.
+ */ 
+unsigned int memtest_sub(unsigned int start, unsigned int end);
+
 #endif
