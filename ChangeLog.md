@@ -1,5 +1,16 @@
 # 更新日志 ChangeLog
 
+20180830 04:49 by 王陆洋 Leon Wong
+
+Version: 0.0.3.1
+
+Contents:
+
+* Memory checking.
+* 加入内存检查功能，能计算可使用的内存大小。
+
+---
+
 20180830 03:12 by 王陆洋 Leon Wong
 
 Version: 0.0.3.0
@@ -7,7 +18,7 @@ Version: 0.0.3.0
 Contents:
 
 * Advanced Mouse & Keyboard interrupts handling.
-*  对键盘和鼠标的中断处理，能够显示二者的状态和数据。
+* 对键盘和鼠标的中断处理，能够显示二者的状态和数据。
 
 ---
 
