@@ -1,5 +1,19 @@
 # 更新日志 ChangeLog
 
+20180831 04:31 by 王陆洋 Leon Wong
+
+Verision: 0.1.0.0
+
+Contents:
+
+* Finish sheet window management.
+* Allow mouse to go around~
+
+* 完善图层式窗口管理。
+* 完善鼠标功能。
+
+---
+
 20180830 04:49 by 王陆洋 Leon Wong
 
 Version: 0.0.3.1
