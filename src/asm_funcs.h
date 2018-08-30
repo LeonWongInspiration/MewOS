@@ -1,7 +1,7 @@
 /** ASM Functions Declaration
  * 
  * @author: Leon Wong
- * @build: 201808250330
+ * @build: 201808310608
  * @brief: This file gives declarations of the functions from asm_funcs.nas.
  * @uasge: Just include this file, there's no need to compile it.
  * 
@@ -71,6 +71,12 @@ void load_gdtr(int limit, int addr);
  * @param: int addr: The address of the idt.
  */ 
 void load_idtr(int limit, int addr);
+
+/**
+ * @brief: Interrupt handler for Timer
+ * @seealso: inthandler20
+ */ 
+void asm_inthandler20();
 
 /**
  * @brief: Interrupt handler for Keyboard PS/2

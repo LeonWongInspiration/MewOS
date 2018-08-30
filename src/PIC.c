@@ -18,6 +18,10 @@ void initPIC(){
 	io_out8(PIC1_IMR, 0xff);
 }
 
+void inthandler20(int *esp){
+	timerInterruptHandler(esp);
+}
+
 void inthandler21(int *esp){
 	keyboardInterruptHandler(esp);
 }

@@ -12,6 +12,7 @@
 
 #include "Sheet.h"
 #include "VisualFuncs.h"
+#include "Fonts.h"
 
 /**
  * @brief: Make a window with a sheet buffer and other info.

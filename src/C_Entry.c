@@ -18,10 +18,11 @@
 #include "Memorie.h"
 #include "Sheet.h"
 #include "Window.h"
+#include "Timer.h"
 
 #include "include\stdio.h"
 
-static const char *version = "MewOS 0.1.0.0";
+static const char *version = "MewOS 0.1.0.1";
 
 extern FIFO8 keyboardBuffer;
 extern FIFO8 mouseBuffer;
@@ -60,8 +61,11 @@ void MewOSMain(){
 	io_sti();
 	initKeyboardBuffer(keyboardBuf, 32);
 	initMouseBuffer(mouseBuf, 128);
-	io_out8(PIC0_IMR, 0xf9); // Enable PIC1
-	io_out8(PIC1_IMR, 0xef);
+
+	initPIT();
+	
+	io_out8(PIC0_IMR, 0xf8); // Enable PIT and keyboard IRQs
+	io_out8(PIC1_IMR, 0xef); // Enable mouse IRQs
 
 	initKeyboard();
 	enableMouse(&mdec);

@@ -1,7 +1,7 @@
 /** Programmable Interrupt Controller (PIC) Management
  * 
  * @author: Leon Wong
- * @build: 201808270234
+ * @build: 201808310603
  * @brief: This file includes some functions controlling PIC.
  * @usage: This file shoule be both included and compiled.
  * 
@@ -16,6 +16,7 @@
 #include "Fonts.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Timer.h"
 
 /// Relative addresses
 const static int PIC0_ICW1 = 0x0020; /// ICW: Initial Control Word
@@ -35,6 +36,13 @@ const static int PIC1_ICW4 = 0x00a1;
  * @brief: This function inits PIC.
  */ 
 void initPIC();
+
+/**
+ * @brief: Handle interrupts from timer.
+ * @param: (int *)esp: ESP register.
+ * @seealso: timerInterruptHandler.
+ */ 
+void inthandler20(int *esp);
 
 /**
  * @brief: Receive interrupts from keyboard and call functions in keyboard.c to handle it.
