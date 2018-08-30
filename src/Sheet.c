@@ -3,8 +3,17 @@
 SHEET_MANAGER* initSheetManager(MEMORY_FREE_TABLE *memman, unsigned char *vram, int xsize, int ysize){
     SHEET_MANAGER *sheetManager;
     int i;
-    sheetManager = allocMemoryForSize_Page(memman, sizeof(SHEET_MANAGER));
+    // Alloc memory for sheet manager.
+    sheetManager = (SHEET_MANAGER *)allocMemoryForSize_Page(memman, sizeof(SHEET_MANAGER));
     if (sheetManager == NULL){
+        return NULL;
+    }
+    // Alloc memory for the map.
+    sheetManager->map = (unsigned char *)allocMemoryForSize_Page(memman, xsize * ysize);
+    if (sheetManager->map == NULL){
+        // If map cannot get enough memory space.
+        // Destroy the memory allocated for sheet manager.
+        freeMemoryWithAddrAndSize_Page(memman, (unsigned)sheetManager, sizeof(SHEET_MANAGER));
         return NULL;
     }
     sheetManager->vram = vram;
@@ -13,6 +22,7 @@ SHEET_MANAGER* initSheetManager(MEMORY_FREE_TABLE *memman, unsigned char *vram, 
     sheetManager->top = -1; // No sheets
     for (i = 0; i < MAX_SHEETS; ++i){
         sheetManager->sheets0[i].flags = 0; // Not used
+        sheetManager->sheets0[i].ctl = sheetManager;
     }
     return sheetManager;
 }
@@ -38,19 +48,20 @@ void setSheetBuffer(SHEET *sht, unsigned char *buf, int xsize, int ysize, int co
 	sht->colorAndInvisibility = colorAndInvisibility;
 }
 
-void setSheetHeight(SHEET_MANAGER *sheetManager, SHEET *sht, int height){
-    int h, old = sht->height; // Save info before.
+void setSheetHeight(SHEET *sht, int height){
+    SHEET_MANAGER *sheetManager = sht->ctl;
+	int h, old = sht->height; // Save old info
 
-	// If the height is too high/low, adjust it.
+	// Adjust height when its too high or low
 	if (height > sheetManager->top + 1) {
 		height = sheetManager->top + 1;
 	}
 	if (height < -1) {
 		height = -1;
 	}
-	sht->height = height; // Assign the new height.
+	sht->height = height; // Assign new height
 
-	// Reorder sheets[].
+	// Reorder sheets[]
 	if (old > height) {
 		if (height >= 0) {
 			for (h = old; h > height; h--) {
@@ -58,6 +69,8 @@ void setSheetHeight(SHEET_MANAGER *sheetManager, SHEET *sht, int height){
 				sheetManager->sheets[h]->height = h;
 			}
 			sheetManager->sheets[height] = sht;
+			refreshSheetMap(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, height + 1);
+			sheetRefreshSub(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, height + 1, old);
 		} else {
 			if (sheetManager->top > old) {
 				for (h = old; h < sheetManager->top; h++) {
@@ -66,8 +79,9 @@ void setSheetHeight(SHEET_MANAGER *sheetManager, SHEET *sht, int height){
 				}
 			}
 			sheetManager->top--;
+			refreshSheetMap(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0);
+			sheetRefreshSub(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0, old - 1);
 		}
-		sheetRefreshSub(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize);
 	} else if (old < height) {
 		if (old >= 0) {
 			for (h = old; h < height; h++) {
@@ -81,30 +95,32 @@ void setSheetHeight(SHEET_MANAGER *sheetManager, SHEET *sht, int height){
 				sheetManager->sheets[h + 1]->height = h + 1;
 			}
 			sheetManager->sheets[height] = sht;
-			sheetManager->top++;
-        }
-		sheetRefreshSub(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize);
+			sheetManager->top++; 
+		}
+		refreshSheetMap(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, height);
+		sheetRefreshSub(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, height, height);
 	}
 }
 
-void sheetRefresh(SHEET_MANAGER *sheetManager, SHEET *sht, int bx0, int by0, int bx1, int by1){
+void sheetRefresh(SHEET *sht, int bx0, int by0, int bx1, int by1){
     if (sht->height >= 0) { // If this sheet is visible
-        sheetRefreshSub(sheetManager, sht->vx0 + bx0, sht->vy0 + by0, sht->vx0 + bx1, sht->vy0 + by1);
+        sheetRefreshSub(sht->ctl, sht->vx0 + bx0, sht->vy0 + by0, sht->vx0 + bx1, sht->vy0 + by1, sht->height, sht->height);
     }
 }
 
-void sheetRefreshSub(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1){
+void sheetRefreshSub(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight, int maxRefHeight){
 	int h, bx, by, vx, vy, bx0, by0, bx1, by1;
-	unsigned char *buf, c, *vram = sheetManager->vram;
+	unsigned char *buf, *vram = sheetManager->vram, *map = sheetManager->map, sid;
 	struct SHEET *sht;
 	if (vx0 < 0) { vx0 = 0; }
 	if (vy0 < 0) { vy0 = 0; }
 	if (vx1 > sheetManager->xsize) { vx1 = sheetManager->xsize; }
 	if (vy1 > sheetManager->ysize) { vy1 = sheetManager->ysize; }
-	for (h = 0; h <= sheetManager->top; h++) {
+	for (h = leastRefHeight; h <= maxRefHeight; h++) {
 		sht = sheetManager->sheets[h];
 		buf = sht->buf;
-		// If the sheet is outside, ignore those outside.
+		sid = sht - sheetManager->sheets0;
+		// Ignore those parts outside
 		bx0 = vx0 - sht->vx0;
 		by0 = vy0 - sht->vy0;
 		bx1 = vx1 - sht->vx0;
@@ -117,28 +133,62 @@ void sheetRefreshSub(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int
 			vy = sht->vy0 + by;
 			for (bx = bx0; bx < bx1; bx++) {
 				vx = sht->vx0 + bx;
-				c = buf[by * sht->bxsize + bx];
-				if (c != sht->colorAndInvisibility) {
-					vram[vy * sheetManager->xsize + vx] = c;
+				if (map[vy * sheetManager->xsize + vx] == sid) {
+					vram[vy * sheetManager->xsize + vx] = buf[by * sht->bxsize + bx];
 				}
 			}
 		}
 	}
 }
  
-void sheetMove(SHEET_MANAGER *sheetManager, SHEET * sht, int vx0, int vy0){
-    int old_vx0 = sht->vx0, old_vy0 = sht->vy0;
+void sheetMove(SHEET *sht, int vx0, int vy0){
+	SHEET_MANAGER *ctl = sht->ctl;
+	int old_vx0 = sht->vx0, old_vy0 = sht->vy0;
 	sht->vx0 = vx0;
 	sht->vy0 = vy0;
-	if (sht->height >= 0) { // If the sheet is currently visible.
-		sheetRefreshSub(sheetManager, old_vx0, old_vy0, old_vx0 + sht->bxsize, old_vy0 + sht->bysize);
-		sheetRefreshSub(sheetManager, vx0, vy0, vx0 + sht->bxsize, vy0 + sht->bysize);
+	if (sht->height >= 0) { // Update those showing
+		refreshSheetMap(ctl, old_vx0, old_vy0, old_vx0 + sht->bxsize, old_vy0 + sht->bysize, 0);
+		refreshSheetMap(ctl, vx0, vy0, vx0 + sht->bxsize, vy0 + sht->bysize, sht->height);
+		sheetRefreshSub(ctl, old_vx0, old_vy0, old_vx0 + sht->bxsize, old_vy0 + sht->bysize, 0, sht->height - 1);
+		sheetRefreshSub(ctl, vx0, vy0, vx0 + sht->bxsize, vy0 + sht->bysize, sht->height, sht->height);
 	}
 }
 
-void sheetDestroy(SHEET_MANAGER *sheetManager, SHEET *sht){
+void sheetDestroy(SHEET *sht){
     if (sht->height >= 0){
-        setSheetHeight(sheetManager, sht, -1); // Set it invisible.
+        setSheetHeight(sht, -1); // Set it invisible.
     }
     sht->flags = SHEET_FREE; // Set its flag as free.
+}
+
+void refreshSheetMap(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight){
+    int h, bx, by, vx, vy, bx0, by0, bx1, by1;
+	unsigned char *buf, sid, *map = sheetManager->map;
+	struct SHEET *sht;
+	if (vx0 < 0) { vx0 = 0; }
+	if (vy0 < 0) { vy0 = 0; }
+	if (vx1 > sheetManager->xsize) { vx1 = sheetManager->xsize; }
+	if (vy1 > sheetManager->ysize) { vy1 = sheetManager->ysize; }
+	for (h = leastRefHeight; h <= sheetManager->top; h++) {
+		sht = sheetManager->sheets[h];
+		sid = sht - sheetManager->sheets0;
+		buf = sht->buf;
+		bx0 = vx0 - sht->vx0;
+		by0 = vy0 - sht->vy0;
+		bx1 = vx1 - sht->vx0;
+		by1 = vy1 - sht->vy0;
+		if (bx0 < 0) { bx0 = 0; }
+		if (by0 < 0) { by0 = 0; }
+		if (bx1 > sht->bxsize) { bx1 = sht->bxsize; }
+		if (by1 > sht->bysize) { by1 = sht->bysize; }
+		for (by = by0; by < by1; by++) {
+			vy = sht->vy0 + by;
+			for (bx = bx0; bx < bx1; bx++) {
+				vx = sht->vx0 + bx;
+				if (buf[by * sht->bxsize + bx] != sht->colorAndInvisibility) {
+					map[vy * sheetManager->xsize + vx] = sid;
+				}
+			}
+		}
+	}
 }

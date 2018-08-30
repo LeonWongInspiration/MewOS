@@ -17,6 +17,7 @@
 #include "FIFOBuffer.h"
 #include "Memorie.h"
 #include "Sheet.h"
+#include "Window.h"
 
 #include "include\stdio.h"
 
@@ -40,12 +41,18 @@ void MewOSMain(){
 	unsigned int totalMemory; // Total memory capacity.
 	MOUSE_DECODER mdec;
 	MEMORY_FREE_TABLE *memman = (MEMORY_FREE_TABLE *) MEMORY_MANAGER_ADDR;
-	SHEET_MANAGER *shtctl;
 	SHEET *sheetBackground;
 	SHEET *sheetMouse;
+	SHEET_MANAGER *shtctl;
 	unsigned char *bufferBackground;
 	unsigned char bufferMouse[256];
 
+	unsigned int count = 0;
+	SHEET *sheetWindow;
+	unsigned char *bufferWindow;
+
+
+	//------ Init the system ------ //
 	initGDT();
 	initIDT();
 	initPIC();
@@ -73,23 +80,42 @@ void MewOSMain(){
 	setSheetBuffer(sheetMouse, bufferMouse, 16, 16, 99); // 16 is the width and height of mouse, 99 means mouse is very high.
 	init_screen(bufferBackground, binfo->scrnx, binfo->scrny);
 	init_mouse_cursor8(bufferMouse, 99); // Now the bg color for mouse is not very important.
-	sheetMove(shtctl, sheetBackground, 0, 0);
+	sheetMove(sheetBackground, 0, 0);
 	mx = (binfo->scrnx - 16) / 2; // Put the mouse at the center of the screen,
 	my = (binfo->scrny - 28 - 16) / 2; // and without the bar at the bottom.
-	sheetMove(shtctl, sheetMouse, mx, my);
-	setSheetHeight(shtctl, sheetBackground, 0);
-	setSheetHeight(shtctl, sheetMouse, 1);
+	sheetMove(sheetMouse, mx, my);
+	setSheetHeight(sheetBackground, 0);
+	setSheetHeight(sheetMouse, 1);
 	sprintf(s, "(%3d, %3d)", mx, my);
 	putfonts8_asc(bufferBackground, binfo->scrnx, 0, 0, COL8_FFFFFF, s);
 	sprintf(s, "Total Memory %dMB, Free : %dKB",
 			totalMemory / (1024 * 1024), getAvailableMemorySpace(memman) / 1024);
 	putfonts8_asc(bufferBackground, binfo->scrnx, 0, 32, COL8_FFFFFF, s);
-	sheetRefresh(shtctl, sheetBackground, 0, 0, binfo->scrnx, 48);
+	sheetRefresh(sheetBackground, 0, 0, binfo->scrnx, 48);
+
+	// ------ Deal with the window here ------ //
+	sheetWindow = allocASheetForWindow(shtctl);
+	bufferWindow = (unsigned char *)allocMemoryForSize_Page(memman, 160 * 52);
+	setSheetBuffer(sheetWindow, bufferWindow, 160, 52, -1);
+	make_window8(bufferWindow, 160, 52, "Counter");
+	sheetMove(sheetWindow, 80, 72);
+	setSheetHeight(sheetBackground, 0);
+	setSheetHeight(sheetWindow, 1);
+	setSheetHeight(sheetMouse, 2);
 	
 	//putfonts8_asc(bufferBackground, binfo->scrnx, 0, 128, COL8_FFFFFF, "Init finished.");
 	//sheetRefresh(shtctl, sheetBackground, 0, 0, binfo->scrnx, 48);
 
+	// ------ Deal with IRQs ------ //
 	while (1){
+		// ------ Deal with the counter ------ //
+		++count;
+		sprintf(s, "%010d", count);
+		boxfill8(bufferWindow, 160, COL8_C6C6C6, 40, 28, 119, 43);
+		putfonts8_asc(bufferWindow, 160, 40, 28, COL8_000000, s);
+		sheetRefresh(sheetWindow, 40, 28, 120, 44);
+
+		// ------ Deal with IRQs from PS/2 ------ //
 		io_cli();
 		if ((fifo8_status(&keyboardBuffer) | fifo8_status(&mouseBuffer)) == 0){
 			// No IRQs from keyboard and mouse.
@@ -105,7 +131,7 @@ void MewOSMain(){
 					sprintf(s, "%02X", c);
 					boxfill8(bufferBackground, binfo->scrnx, COL8_008484,  0, 16, 15, 31);
 					putfonts8_asc(bufferBackground, binfo->scrnx, 0, 16, COL8_FFFFFF, s);
-					sheetRefresh(shtctl, sheetBackground, 0, 16, 16, 32);
+					sheetRefresh(sheetBackground, 0, 16, 16, 32);
 				}
 				else {
 					io_sti();
@@ -127,7 +153,7 @@ void MewOSMain(){
 						}
 						boxfill8(bufferBackground, binfo->scrnx, COL8_008484, 32, 16, 32 + 15 * 8 - 1, 31);
 						putfonts8_asc(bufferBackground, binfo->scrnx, 32, 16, COL8_FFFFFF, s);
-						sheetRefresh(shtctl, sheetBackground, 32, 16, 32 + 15 * 8, 32);
+						sheetRefresh(sheetBackground, 32, 16, 32 + 15 * 8, 32);
 						mx += mdec.x;
 						my += mdec.y;
 						if (mx < 0) {
@@ -146,8 +172,8 @@ void MewOSMain(){
 						sprintf(s, "(%3d, %3d)", mx, my);
 						boxfill8(bufferBackground, binfo->scrnx, COL8_008484, 0, 0, 79, 15);
 						putfonts8_asc(bufferBackground, binfo->scrnx, 0, 0, COL8_FFFFFF, s);
-						sheetRefresh(shtctl, sheetBackground, 0, 0, 80, 16);
-						sheetMove(shtctl, sheetMouse, mx, my);
+						sheetRefresh(sheetBackground, 0, 0, 80, 16);
+						sheetMove(sheetMouse, mx, my);
 					}
 				}
 				else {
