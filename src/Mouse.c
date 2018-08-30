@@ -2,8 +2,6 @@
 
 FIFO8 mouseBuffer;
 
-MOUSE_DECODER mouseDecoder;
-
 void init_mouse_cursor8(char *mouse, char bc){
     static char cursor[16][16] = {
 		"**************..",
