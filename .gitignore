@@ -10,6 +10,7 @@ src/*.obj
 src/*.sys
 src/*.bim
 src/*.hrb
+src/._Makefile
 
 src/*.nas
 !src/asm_funcs.nas
