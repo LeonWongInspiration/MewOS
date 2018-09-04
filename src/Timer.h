@@ -1,7 +1,7 @@
 /** Programmable Interval Timer (PIT) Management
  * 
  * @author: Leon Wong
- * @build: 201809032058
+ * @build: 201809040932
  * @brief: This file provides functions about PIT and timer.
  * @usage: This file should be both included and compiled.
  * 
@@ -31,15 +31,18 @@ const static int PIT_CNT0 = 0x0040;
 
 // Timer struct def
 typedef struct TIMER {
+    TIMER *next; // Pointer for "linked list".
     unsigned int timeout; // Total time out for this timer.
     unsigned int flags;
-    FIFO8 *fifo;
-    unsigned char data;
+    FIFO32 *fifo;
+    int data;
 } TIMER;
 
 // Manager for timers
 typedef struct TIMER_MANAGER{
-    unsigned int count; // How many timers are here.
+    unsigned int count;
+    unsigned int next;
+    TIMER *t0; // First "Node" of timers
     TIMER timers[MAX_TIMER];
 } TIMER_MANAGER;
 
@@ -65,10 +68,10 @@ void freeTimer(TIMER *timer);
 /**
  * @brief: Init a timer with given allocated data.
  * @param: (TIMER *)timer: The timer to init.
- * @param: (FIFO8 *)fifo: The fifo buffer alloc for timer.
- * @param: (uchar)data: Data to init.
+ * @param: (FIFO32 *)fifo: The fifo buffer alloc for timer.
+ * @param: (int)data: Data to init.
  */ 
-void initTimer(TIMER *timer, FIFO8 *fifo, unsigned char data);
+void initTimer(TIMER *timer, FIFO32 *fifo, int data);
 
 /**
  * @brief: Set timeout for a timer.

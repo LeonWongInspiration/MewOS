@@ -42,8 +42,9 @@ void init_mouse_cursor8(char *mouse, char bc);
 /**
  * @brief: Init keyboard control to get mouse ready.
  * @param: (MOUSE_DECODER *)mouseDecoder: The decoder strauct of the mouse.
+ * @param: (int)data0: The constant that the data from mouse will add.
  */ 
-void enableMouse(MOUSE_DECODER *mouseDecoder);
+void enableMouse(MOUSE_DECODER *mouseDecoder, int data0);
 
 /**
  * @brief: Handle interrupts from Mouse.
@@ -54,10 +55,10 @@ void mouseInterruptHandler(int *esp);
 
 /**
  * @brief: Init the mouse buffer with an array of uchars.
- * @param: uchar *buf: The array of the buffer.
+ * @param: (int *)buf: The array of the buffer.
  * @param: int size: Size of the buffer.
  */ 
-void initMouseBuffer(unsigned char *buf, int size);
+void initMouseBuffer(int *buf, int size);
 
 /**
  * @brief: Decode a series of mouse data.

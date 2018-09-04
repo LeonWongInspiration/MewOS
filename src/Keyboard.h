@@ -1,7 +1,7 @@
 /** Keyboard Management
  * 
  * @author: Leon Wong
- * @build: 201808300126
+ * @build: 201809040928
  * @brief: This file includes functions on keyboard management
  * @usage: This file should be both included and compiled
  * 
@@ -44,10 +44,10 @@ void keyboardInterruptHandler(int *esp);
 
 /**
  * @brief: Init the keyboard buffer with an array of uchars.
- * @param: uchar *buf: The array of the buffer.
+ * @param: (int) *buf: The array of the buffer.
  * @param: int size: Size of the buffer.
  */ 
-void initKeyboardBuffer(unsigned char *buf, int size);
+void initKeyboardBuffer(int *buf, int size);
 
 /**
  * @brief: Call this function will pause the current process and wait until keyboard is ready.
@@ -56,7 +56,8 @@ void waitKeyboardReady();
 
 /**
  * @brief: Init keyboard control with mouse.
+ * @param: (int)data0: The constant that the IRQ data from keyboard will add.
  */ 
-void initKeyboard();
+void initKeyboard(int data0);
 
 #endif
