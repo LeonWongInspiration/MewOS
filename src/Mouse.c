@@ -1,6 +1,6 @@
 #include "Mouse.h"
 
-FIFO32 mouseBuffer;
+FIFO32 *mouseBuffer;
 int mousedata0;
 
 void init_mouse_cursor8(char *mouse, char bc){
@@ -39,7 +39,8 @@ void init_mouse_cursor8(char *mouse, char bc){
 	}
 }
 
-void enableMouse(MOUSE_DECODER *mouseDecoder, int data0){
+void enableMouse(FIFO32 *fifo, MOUSE_DECODER *mouseDecoder, int data0){
+	mouseBuffer = fifo;
 	mousedata0 = data0;
 	waitKeyboardReady();
 	io_out8(PORT_KEYBOARD_CMD, KEYBOARD_CMD_SENDTO_MOUSE);
@@ -54,12 +55,12 @@ void mouseInterruptHandler(int *esp){
 	io_out8(PIC1_OCW2, 0x64);
 	io_out8(PIC0_OCW2, 0x62);
 	data = io_in8(PORT_KEYBOARD);
-	fifo32_put(&mouseBuffer, data + mousedata0);
+	fifo32_put(mouseBuffer, data + mousedata0);
 }
 
-void initMouseBuffer(int *buf, int size){
-    fifo32_init(&mouseBuffer, size, buf);
-}
+// void initMouseBuffer(int *buf, int size){
+//     fifo32_init(&mouseBuffer, size, buf);
+// }
 
 int mouseDecode(MOUSE_DECODER *mouseDecoder, unsigned char dat){
 	if (mouseDecoder->phase == 0) {

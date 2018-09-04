@@ -31,7 +31,7 @@ const static int PIT_CNT0 = 0x0040;
 
 // Timer struct def
 typedef struct TIMER {
-    TIMER *next; // Pointer for "linked list".
+    struct TIMER *next; // Pointer for "linked list".
     unsigned int timeout; // Total time out for this timer.
     unsigned int flags;
     FIFO32 *fifo;

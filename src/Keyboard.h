@@ -46,7 +46,8 @@ void keyboardInterruptHandler(int *esp);
  * @brief: Init the keyboard buffer with an array of uchars.
  * @param: (int) *buf: The array of the buffer.
  * @param: int size: Size of the buffer.
- */ 
+ */
+// __DEPRECATED
 void initKeyboardBuffer(int *buf, int size);
 
 /**
@@ -56,8 +57,9 @@ void waitKeyboardReady();
 
 /**
  * @brief: Init keyboard control with mouse.
+ * @param: (FIFO32 *)fifo: The FIFO buffer for keyboard.
  * @param: (int)data0: The constant that the IRQ data from keyboard will add.
  */ 
-void initKeyboard(int data0);
+void initKeyboard(FIFO32 *fifo, int data0);
 
 #endif
