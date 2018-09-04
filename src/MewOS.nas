@@ -1,6 +1,14 @@
 ; MewOS main system file
 ; TAB=4
 
+[INSTRSET "i486p"]
+
+VBEMODE	EQU		0x107			; VESA BIOS Ext (VBE) video mode setting
+;	0x101: 640*480*8bit
+;	0x103: 800*600*8bit
+;	0x105: 1024*768*8bit
+;	0x107: 1280*1024*8bit 
+
 CENTRY	EQU		0x00280000		; C system file entry
 DSKCAC	EQU		0x00100000		; Address of disk cache
 DSKCAC0 EQU		0x00008000		; Address of disk cache under real mode
@@ -15,6 +23,50 @@ VRAM	EQU		0x0ff8			; The address of VRAM
 
 		ORG		0xc200			; The address of this executable
 
+; Check if the machine supports VBE
+		MOV		AX,0x9000
+		MOV		ES,AX
+		MOV		DI,0
+		MOV		AX,0x4f00
+		INT		0x10			; First set registers like those above, and then use INT 0x10
+		CMP		AX,0x004f		; if the machine supports VBE, we'll get AX == 0x004f
+		JNE		scrn320			; Unfortunately the machine doesnt support VBE
+
+; Check the version of VBE
+		MOV		AX,[ES:DI+4]
+		CMP		AX,0x0200
+		JB		scrn320			; We need VBE version >= 2.0 to support high resolution.
+
+; Try to set the VBE mode once, and check if this mode works.
+		MOV		CX,VBEMODE
+		MOV		AX,0x4f01
+		INT		0x10
+		CMP		AX,0x004f		; After setting the VBE mode, if AX != 0x004f, this VBE mode is not supprted.
+		JNE		scrn320
+
+; Check if the VBE mode works
+		CMP		BYTE [ES:DI+0x19],8
+		JNE		scrn320
+		CMP		BYTE [ES:DI+0x1b],4
+		JNE		scrn320
+		MOV		AX,[ES:DI+0x00]
+		AND		AX,0x0080		; The 7th bit of VBE mode can indicate if the VBE mode can actually work.
+		JZ		scrn320
+
+; Actually set the VBE mode
+		MOV		BX,VBEMODE+0x4000
+		MOV		AX,0x4f02
+		INT		0x10
+		MOV		BYTE [VMODE],8	; Take down the VBE mode (for BootInfo)
+		MOV		AX,[ES:DI+0x12]
+		MOV		[SCRNX],AX
+		MOV		AX,[ES:DI+0x14]
+		MOV		[SCRNY],AX
+		MOV		EAX,[ES:DI+0x28]
+		MOV		[VRAM],EAX
+		JMP		keystatus
+
+scrn320:						; Unfortunately we have to use low resolution :(
 		MOV		AL,0x13			; Use VGA graphic with 320*200*8bit
 		MOV		AH,0x00
 		INT		0x10
@@ -25,6 +77,7 @@ VRAM	EQU		0x0ff8			; The address of VRAM
 		MOV		DWORD [VRAM],0x000a0000
 
 ; Read the led of the keyboard from BIOS
+keystatus:
 		MOV		AH,0x02
 		INT		0x16			; Keyboard BIOS
 		MOV		[LEDS],AL
@@ -51,8 +104,6 @@ VRAM	EQU		0x0ff8			; The address of VRAM
 		CALL	waitkbdout
 
 ; Switch to protected mode
-
-[INSTRSET "i486p"]				; Disclaim support for 486 instructions
 
 		LGDT	[GDTR0]			; Set temp GDT
 		MOV		EAX,CR0

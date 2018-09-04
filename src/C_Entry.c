@@ -24,7 +24,7 @@
 
 #include "include\stdio.h"
 
-static const char *version = "MewOS 0.1.1.0";
+static const char *version = "MewOS 0.2.0.0";
 
 extern int mousedata0;
 extern int keydata0;
