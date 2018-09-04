@@ -141,18 +141,14 @@ void MewOSMain(){
 				
 				// ------ Show key data on window ------ //
 				if (i < 0x54 + keydata0) {
-					if (keyboardTable[i - keydata0] != 0 && cursorX < 144 && keyboardTable[i - keydata0] != '\b') { // We get a character and have enough space to show it.
+					if (i == '\b') {
+						i = 0;
+					}
+					if (keyboardTable[i - keydata0] != 0 && cursorX < 144) { // We get a character and have enough space to show it.
 						s[0] = keyboardTable[i - keydata0];
 						s[1] = '\0';
-						putStringOnSheet(sheetWindow, cursorX, 28, COL8_000000, COL8_FFFFFF, s, 1);
-						cursorX += 8;
+						puttr
 					}
-					if (i == keydata0 + 0x0e && cursorX > 8){ // If key i is backspace, and there is something to delete.
-						putStringOnSheet(sheetWindow, cursorX, 28, COL8_000000, COL8_FFFFFF, " ", 1);
-						cursorX -= 8;
-					}
-					boxfill8(sheetWindow->buf, cursorX, cursorColor, cursorX, 28, cursorX + 7, 43);
-					sheetRefresh(sheetWindow, cursorX, 28, cursorX + 8, 44);
 				}
 			}
 			else if (i >= mousedata0 && i <= 767) {
@@ -185,30 +181,28 @@ void MewOSMain(){
 					sprintf(s, "(%3d, %3d)", mx, my);
 					putStringOnSheet(sheetBackground, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
 					sheetMove(sheetMouse, mx, my);
-
-					if ((mdec.btn & 0x01) != 0){ // If mouse left key is pressed down.
-						sheetMove(sheetWindow, mx - 80, my - 8);
-					}
 				}
 			}
 			else if (i == 10){
 				putStringOnSheet(sheetBackground, 0, 64, COL8_FFFFFF, COL8_008484, "10 sec", 6);
+				sprintf(s, "%010d", count);
+				putStringOnSheet(sheetWindow, 40, 28, COL8_000000, COL8_C6C6C6, s, 10);
 			}
 			else if (i == 3){
 				putStringOnSheet(sheetBackground, 0, 64, COL8_FFFFFF, COL8_008484, "3 sec", 5);
+				count = 0;
 			}
-			else if (i <= 1){ // Change the color of the cursor.
-				if (i != 0) {
-					initTimer(timer3, &fifo, 0);
-					cursorColor = COL8_000000;
-				}
-				else {
-					initTimer(timer3, &fifo, 1);
-					cursorColor = COL8_FFFFFF;
-				}
-				timerSetTimeOut(timer3, 50); // Cursor will change its color every 500 ms.
-				boxfill8(sheetWindow->buf, sheetWindow->bxsize, cursorColor, cursorX, 28, cursorX + 7, 43);
-				sheetRefresh(sheetWindow, cursorX, 28, cursorX + 8, 44);
+			else if (i == 1){
+				initTimer(timer3, &fifo, 0);
+				boxfill8(bufferBackground, binfo->scrnx, COL8_FFFFFF, 8, 96, 15, 111);
+				timerSetTimeOut(timer3, 50);
+				sheetRefresh(sheetBackground, 8, 96, 16, 112);
+			}
+			else if (i == 0){
+				initTimer(timer3, &fifo, 1);
+				boxfill8(bufferBackground, binfo->scrnx, COL8_008484, 8, 96, 15, 111);
+				timerSetTimeOut(timer3, 50);
+				sheetRefresh(sheetBackground, 8, 96, 16, 112);
 			}
 		}
 	}

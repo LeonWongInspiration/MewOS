@@ -1,7 +1,7 @@
 /** Keyboard Management
  * 
  * @author: Leon Wong
- * @build: 201809040928
+ * @build: 201809042234
  * @brief: This file includes functions on keyboard management
  * @usage: This file should be both included and compiled
  * 
@@ -61,5 +61,17 @@ void waitKeyboardReady();
  * @param: (int)data0: The constant that the IRQ data from keyboard will add.
  */ 
 void initKeyboard(FIFO32 *fifo, int data0);
+
+/// Keyboard table
+const static char keyboardTable[0x54] = {
+    0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t', 
+    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\n', 0,
+    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`', 0, '\\', 
+    'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 0, '*', 0, ' ', 0, 
+    // Fn keys starts here. (10 keys)
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    // Numpad
+    0, 0, '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.'
+};
 
 #endif
