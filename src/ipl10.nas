@@ -106,7 +106,7 @@ msg:
 		DB		0x0a, 0x0d		; 0x0d = \r
         DB      "MewOS Initial Program Loader Failed"
         DB      0x0a, 0x0d
-		DB		"Please check your settings if there's something wrong."
+		DB		"Please check your settings if there's anything wrong."
 		DB		0x0a, 0x0d, 0x0a
 		DB		"Mew Mew Mew~"
 		DB		0

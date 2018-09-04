@@ -5,6 +5,8 @@
  * @usage: Be compiled!
  */ 
 
+#define __STOP while(1){io_hlt();}
+
 #include "VisualFuncs.h"
 #include "BootInfo.h"
 #include "Fonts.h"
@@ -34,6 +36,7 @@ extern TIMER_MANAGER timerManager;
 void MewOSMain();
 
 void MewOSMain(){
+
 	BootInfo *binfo = (BootInfo *) ADR_BOOTINFO;
 	FIFO32 fifo; // Unified FIFO buffer for IRQs.
 	char s[40]; // For sprintf.
@@ -56,11 +59,14 @@ void MewOSMain(){
 	// ------ Do system init ------ //
 	initGDT();
 	initIDT();
+	initPIC();
 	io_sti(); // Now GDT IDT has been inited, we can allow interrupts.
 	fifo32_init(&fifo, 128, fifobuf);
 	initPIT();
 	initKeyboard(&fifo, 256);
 	enableMouse(&fifo, &mdec, 512);
+
+	// ------ Do IRQ allow ------ //
 	io_out8(PIC0_IMR, 0xf8); // Enable interrupts from devices (0xf8)
 	io_out8(PIC1_IMR, 0xef);
 
