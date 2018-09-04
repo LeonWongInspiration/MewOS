@@ -1,8 +1,25 @@
 # 更新日志 ChangeLog
 
+20180904 23:18 by 王陆洋 Leon Wong
+
+Version: 0.2.1.0
+
+Contents:
+
+* Timer support.
+* Keyboard input support.
+* Add TextBox widget support.
+* Allow mouse to move window with left button.
+* 加入定时器功能。
+* 支持使用键盘输入文字（仅限纯英文）。
+* 加入文本区控件。
+* 允许使用鼠标右键进行窗口拖拽。
+
+---
+
 20180831 04:31 by 王陆洋 Leon Wong
 
-Verision: 0.1.0.0
+Version: 0.1.0.0
 
 Contents:
 
