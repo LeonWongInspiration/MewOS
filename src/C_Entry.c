@@ -26,6 +26,7 @@ static const char *version = "MewOS 0.1.0.1";
 
 extern FIFO8 keyboardBuffer;
 extern FIFO8 mouseBuffer;
+extern TIMER_MANAGER timerManager;
 
 /**
  * ENTRY FUNCTION!

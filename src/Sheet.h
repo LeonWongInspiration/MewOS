@@ -1,7 +1,7 @@
 /** Window Sheets Management
  * 
  * @author: Leon Wong
- * @build: 2018083010453
+ * @build: 201809032126
  * @brief: This files contains some functions about window management.
  * @usage: This files shoule be both included and compiled.
  * 
@@ -11,6 +11,9 @@
 #define SHEET_H 1
 
 #include "Memorie.h"
+#include "Fonts.h"
+#include "VisualFuncs.h"
+
 #include "include/stdio.h"
 
 /// The max number of sheets.
@@ -133,5 +136,16 @@ void sheetDestroy(SHEET *sht);
  * @param: (int) leastRefHeight: Only sheets higher than or equal to this height will be updated.
  */ 
 void refreshSheetMap(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight);
+
+/**
+ * @brief: Put a string onto a sheet.
+ * @param: (int)x: X position of the string.
+ * @param: (int)y: Y position of the string.
+ * @param: (int)c: Color of the string.
+ * @param: (int)b: Background color.
+ * @param: (char *)The string.
+ * @param: (int)l: Length of the string.
+ */ 
+void putStringOnSheet(SHEET *sht, int x, int y, int c, int b, char *s, int l);
 
 #endif
