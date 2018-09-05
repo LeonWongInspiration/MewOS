@@ -27,10 +27,6 @@
 
 static const char *version = "MewOS 0.2.1.0";
 
-extern int mousedata0;
-extern int keydata0;
-extern TIMER_MANAGER timerManager;
-
 /**
  * ENTRY FUNCTION!
  */ 

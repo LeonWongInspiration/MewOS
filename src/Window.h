@@ -1,7 +1,7 @@
 /** Build Windows on Sheets
  * 
  * @author: Leon Wong
- * @build: 201808310443
+ * @build: 201809052358
  * @brief: This file provides functions on window management based on Sheet Management.
  * @usage: This file should be both included and compiled.
  * 
@@ -20,7 +20,8 @@
  * @param: (int)xsize: X size of the window.
  * @param: (int)ysize: Y size of the window.
  * @param: (char *)title: Title of the window.
+ * @param: (char)act: Indicator of whether this window is now the front one (thus its title's color will be darker).
  */ 
-void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 
 #endif

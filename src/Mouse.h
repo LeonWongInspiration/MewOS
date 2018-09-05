@@ -17,6 +17,8 @@
 #include "PIC.h"
 #include "FIFOBuffer.h"
 
+extern int mousedata0;
+
 /// Keyboard cmd send to mouse.
 const static int KEYBOARD_CMD_SENDTO_MOUSE = 0xd4;
 

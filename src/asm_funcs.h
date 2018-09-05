@@ -114,4 +114,18 @@ void store_cr0(int cr0);
  */ 
 unsigned int memtest_sub(unsigned int start, unsigned int end);
 
+/**
+ * @brief: Load TR register; TR: task register indicating which segment is currently executing \
+ * Intel defined this and we have to time 8 to the number of segment.
+ * @param: (int)tr: The data for TR register to load.
+ */ 
+void load_tr(int tr);
+
+/**
+ * @brief: Far JMP, change current segment and exec another task.
+ * @param: (int)eip: New EIP register.
+ * @param: (int)cs: New segment. (CR: Code Segment)
+ */ 
+void farjmp(int eip, int cs);
+
 #endif

@@ -88,4 +88,6 @@ void timerSetTimeOut(TIMER *timer, unsigned int timeout);
  */ 
 void timerInterruptHandler(int *esp);
 
+extern TIMER_MANAGER timerManager;
+
 #endif

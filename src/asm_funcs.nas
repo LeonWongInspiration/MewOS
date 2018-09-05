@@ -30,6 +30,8 @@
 		GLOBAL	_load_cr0
 		GLOBAL  _store_cr0
 		GLOBAL	_memtest_sub
+		GLOBAL	_load_tr
+		GLOBAL	_farjmp
 
 		EXTERN	_inthandler20 	; Functions from C
 		EXTERN	_inthandler21
@@ -219,4 +221,12 @@ mts_fin:
 		POP		EBX
 		POP		ESI
 		POP		EDI
+		RET
+
+_load_tr:		; void load_tr(int tr);
+		LTR		[ESP+4]			; tr
+		RET
+
+_farjmp:		; void farjmp(int eip, int cs);
+		JMP		FAR	[ESP+4]				; eip, cs
 		RET

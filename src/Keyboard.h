@@ -17,6 +17,8 @@
 #include "FIFOBuffer.h"
 #include "PIC.h"
 
+extern int keydata0;
+
 /// Port of keyboard.
 const static int PORT_KEYBOARD = 0x0060;
 

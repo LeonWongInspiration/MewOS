@@ -40,13 +40,15 @@ int fifo8_status(FIFO8 *fifo){
     return fifo->size - fifo->free;
 }
 
-void fifo32_init(FIFO32 *fifo, int size, int *buf){
+void fifo32_init(FIFO32 *fifo, int size, int *buf, TASK *task){
     fifo->size = size;
     fifo->buf = buf;
     fifo->free = size;
     fifo->flags = 0x0000;
     fifo->nextRead = 0;
     fifo->nextWrite = 0;
+
+    fifo->task = task; /// @NULLABLE This allows a buffer to wake up a task when adding elems.
 }
 
 int fifo32_put(FIFO32 *fifo, int data){
@@ -60,6 +62,10 @@ int fifo32_put(FIFO32 *fifo, int data){
 		fifo->nextWrite = 0;
 	}
 	--(fifo->free);
+    if (fifo->task != NULL && fifo->task->flags != TASK_RUNNING) {
+        runTask(fifo->task, -1, 0); // Level = -1 means we do not change its level,
+        // and priority = 0 means in this level the task should be executed IMMEDIATELY.
+    }
 	return 0;
 }
 

@@ -1,7 +1,7 @@
 /** FIFO Data Handler
  * 
  * @author: Leon Wong
- * @build: 201809040844
+ * @build: 201809052346
  * @brief: This file defines a FIFO buffer and related functions.
  * @usage: This file should be both included and compiled.
  * 
@@ -9,6 +9,10 @@
 
 #if (!defined(FIFO_BUFFER_H))
 #define FIFO_BUFFER_H 1
+
+#include "Task.h"
+
+#include "include/stdio.h"
 
 /// Flag of OVERRUN
 const static int FIFO_BUFFER_OVERRUN = 0x0001;
@@ -35,6 +39,8 @@ typedef struct FIFOBuffer32{
     int size; /// Size of the buffer.
     int free; /// Number of spaces available.
     int flags; /// Bitwise status indicator.
+
+    TASK *task; /// This allow buffer to wake up a task when adding elems.
 } FIFO32;
 
 /**
@@ -74,9 +80,11 @@ int fifo8_status(FIFO8 *fifo);
  * @param: FIFO32 *fifo: The buffer to init.
  * @param: int size: Size of the buffer.
  * @param: (int *)buf: The memory allocated for the buffer.
+ * @param: (TASK *)task: We can assign a task for a buffer, thus the buffer will wake up the task when adding elems.
  * @warning: The size of the buffer should be the same with the real size of the buf array!
+ * @warning: You can assign NULL for the task, thus the buffer won't wake up a task when adding elems.
  */ 
-void fifo32_init(FIFO32 *fifo, int size, int *buf);
+void fifo32_init(FIFO32 *fifo, int size, int *buf, TASK *task);
 
 /**
  * @brief: Put an element into the FIFO32 Buffer
