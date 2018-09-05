@@ -31,8 +31,8 @@
 		GLOBAL  _store_cr0
 		GLOBAL	_memtest_sub
 
-		EXTERN	_inthandler20
-		EXTERN	_inthandler21 	; Functions from C
+		EXTERN	_inthandler20 	; Functions from C
+		EXTERN	_inthandler21
 		EXTERN	_inthandler27
 		EXTERN	_inthandler2c
 

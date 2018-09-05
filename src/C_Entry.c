@@ -125,11 +125,16 @@ void MewOSMain(){
 			totalMemory / (1024 * 1024), getAvailableMemorySpace(memman) / 1024);
 	putStringOnSheet(sheetBackground, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
 
+	// ------ Timer debug ------ //
+	if (timer == NULL) { putStringOnSheet(sheetBackground, 0, 128, COL8_FFFF00, COL8_000000, "Timer is NULL", 13); }
+	if (timer2 == NULL) { putStringOnSheet(sheetBackground, 0, 128, COL8_FFFF00, COL8_000000, "Timer2 is NULL", 14); }
+	if (timer3 == NULL) { putStringOnSheet(sheetBackground, 0, 128, COL8_FFFF00, COL8_000000, "Timer3 is NULL", 14); }
+
 	// ------ Interrupt handling ------ //
 	while (1){
 		io_cli();
 		if (fifo32_status(&fifo) == 0) {
-			io_sti();
+			io_stihlt();
 		}
 		else {
 			fifo32_get(&fifo, &i);

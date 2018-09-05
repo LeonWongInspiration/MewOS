@@ -1,5 +1,16 @@
 # 更新日志 ChangeLog
 
+20180905 10:36 by 王陆洋 Leon Wong
+
+Bugfix
+
+Contents:
+
+* Fix a bug that system gets stuck when coming into interrupts handling.
+* 修复了系统在中断响应时的严重卡顿。
+
+---
+
 20180904 23:18 by 王陆洋 Leon Wong
 
 Version: 0.2.1.0
