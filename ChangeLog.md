@@ -1,5 +1,20 @@
 # 更新日志 ChangeLog
 
+20180906 00:02 by 王陆洋 Leon Wong
+
+Version: 0.2.1.0 (For new functions are only added but not used.)
+
+由于只引入了多任务进制，还未加入多任务的应用，所以没有更改版本号。
+
+Branch: MultitaskManagement.
+
+Contents:
+
+* Introducing multitasking, which supports up to 10 * 100 (level * priority) tasks.
+* 引入多任务管理，支持10 * 100 （大等级 * 小等级）个任务。
+
+---
+
 20180905 10:36 by 王陆洋 Leon Wong
 
 Bugfix
