@@ -35,7 +35,7 @@ void freeTimer(TIMER *timer){
     timer->flags = TIMER_FREE;
 }
 
-void initTimer(TIMER *timer, FIFO32 *fifo, int data){
+void initTimer(TIMER *timer, struct FIFOBuffer32 *fifo, int data){
     timer->fifo = fifo;
     timer->data = data;
 }

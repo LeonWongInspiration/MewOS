@@ -40,6 +40,7 @@ void consoleTask(SHEET *sheet){
                 if (i == keydata0 + 8) { // Backspace
                     if (cursorX > 16) { // We actually have characters to delete.
                         putStringOnSheet(sheet, cursorX, 28, COL8_FFFFFF, COL8_000000, " ", 1);
+                        cursorX -= 8;
                     }
                 }
                 else { // Other characters

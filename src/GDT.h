@@ -7,10 +7,11 @@
  * 
  */
 
-#if (!defined(GDT_H))
+#ifndef GDT_H
 #define GDT_H 1
 
 #include "asm_funcs.h"
+#include "Structs.h"
 
 /// Address of all C system program.
 const static int ADR_C_ALL = 0x00280000;
@@ -24,18 +25,6 @@ const static int AR_DATA32_RW = 0x4092;
 /// Access Right
 const static int AR_CODE32_ER = 0x409a;
 
-/**
- * 8 byte GDT info
- */ 
-typedef struct SEGMENT_DESCRIPTOR{
-    short limit_low;
-    short base_low;
-    char base_mid;
-    char access_right;
-    char limit_high;
-    char base_high;
-} SEGMENT_DESCRIPTOR;
-
 /// GDT Address got from asm files.
 const static void* GDTAddress = (void *) 0x00270000;
 
@@ -47,7 +36,11 @@ void initGDT();
 
 /**
  * @brief: Set GDT.
+ * @param: (SEGMENT_DESCRIPTOR *)sd: The GD to register.
+ * @param: (uint) limit: The limit of segments (upper).
+ * @param: (int)base: The limit of segments (lower).
+ * @param: (int)ar: Access right.
  */ 
-void setGDT(SEGMENT_DESCRIPTOR *sd, unsigned int limit, int base, int ar);
+void setGDT(struct SEGMENT_DESCRIPTOR *sd, unsigned int limit, int base, int ar);
 
 #endif

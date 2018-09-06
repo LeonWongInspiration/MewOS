@@ -7,51 +7,19 @@
  * 
  */ 
 
-#if (!defined(SHEET_H))
+#ifndef SHEET_H
 #define SHEET_H 1
 
 #include "Memorie.h"
 #include "Fonts.h"
 #include "VisualFuncs.h"
+#include "Structs.h"
 
 #include "include/stdio.h"
-
-/// The max number of sheets.
-#define MAX_SHEETS 256
 
 /// The FLAGS for sheets:
 const static int SHEET_FREE = 0;
 const static int SHEET_IN_USE = 1;
-
-struct SHEET;
-struct SHEET_MANAGER;
-
-typedef struct SHEET SHEET;
-typedef struct SHEET_MANAGER SHEET_MANAGER;
-
-/// A struct about one sheet.
-struct SHEET {
-    unsigned char *buf; // Buffer of this sheet.
-    int bxsize; // X size.
-    int bysize; // Y size.
-    int vx0; // Position (Left top)
-    int vy0; // Position (Left top)
-    int colorAndInvisibility; // Just as its name.
-    int height; // The order of the sheet from top to bottom.
-    int flags;
-    SHEET_MANAGER *ctl;
-};
-
-/// Sheet manager
-struct SHEET_MANAGER{
-    unsigned char *vram; // Address of VRAM
-    unsigned char *map; // A map of the screen indicating which pixels' height.
-    int xsize; // The X size of the UI
-    int ysize; // The Y size of the UI
-    int top; // The max number of layers currently. (i.e. height of the highest sheet)
-    SHEET *sheets[MAX_SHEETS]; // Table of sheets after ordering.
-    SHEET sheets0[MAX_SHEETS]; // Array to contain all sheets.
-};
 
 /**
  * @brief: Init a SheetManager and return it.
@@ -60,7 +28,7 @@ struct SHEET_MANAGER{
  * @param: (int) xsize: X resolution.
  * @param: (int) ysize: Y resolution.
  */ 
-SHEET_MANAGER* initSheetManager(MEMORY_FREE_TABLE *memman, unsigned char *vram, int xsize, int ysize);
+struct SHEET_MANAGER* initSheetManager(struct MEMORY_FREE_TABLE *memman, unsigned char *vram, int xsize, int ysize);
 
 /**
  * @brief: Alloc a sheet for a window.
@@ -68,7 +36,7 @@ SHEET_MANAGER* initSheetManager(MEMORY_FREE_TABLE *memman, unsigned char *vram, 
  * @return (SHEET *) A sheet assigned for the window.
  * @warning: This may return a NULL when there's no available sheets!
  */
-SHEET *allocASheetForWindow(SHEET_MANAGER *sheetManager);
+struct SHEET *allocASheetForWindow(struct SHEET_MANAGER *sheetManager);
 
 /**
  * @brief: Set a set of visual effects for a sheet.
@@ -78,14 +46,14 @@ SHEET *allocASheetForWindow(SHEET_MANAGER *sheetManager);
  * @param: (int) ysize: The Y size of the buffer.
  * @param: (int) colorAndInvisibility: Some flags for the sheet as its name.
  */ 
-void setSheetBuffer(SHEET *sht, unsigned char *buf, int xsize, int ysize, int colorAndInvisibility);
+void setSheetBuffer(struct SHEET *sht, unsigned char *buf, int xsize, int ysize, int colorAndInvisibility);
 
 /**
  * @brief: Adjust the height of a sheet.
  * @param: (SHEET *) sheet: The sheet to get set.
  * @param: (int) height: The height.
  */ 
-void setSheetHeight(SHEET *sht, int height);
+void setSheetHeight(struct SHEET *sht, int height);
 
 /**
  * @brief: Refresh sheets
@@ -96,7 +64,7 @@ void setSheetHeight(SHEET *sht, int height);
  * @param: (int) by1: New Y height of box.
  * @seealso: sheetRefreshSub
  */ 
-void sheetRefresh(SHEET *sht, int bx0, int by0, int bx1, int by1);
+void sheetRefresh(struct SHEET *sht, int bx0, int by0, int bx1, int by1);
 
 /**
  * @brief: Refresh sheets with a ranged position.
@@ -110,7 +78,7 @@ void sheetRefresh(SHEET *sht, int bx0, int by0, int bx1, int by1);
  * @seealso: sheetRefresh
  * @warning: Though asked, it is not very important to keep vx0 < vx1, vy0 < vy1.
  */
-void sheetRefreshSub(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight, int maxRefHeight); 
+void sheetRefreshSub(struct SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight, int maxRefHeight); 
 
 /**
  * @brief: Move a sheet without changing its height.
@@ -118,13 +86,13 @@ void sheetRefreshSub(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int
  * @param: (int) vx0: The new x0.
  * @param: (int) vy0: The new y0.
  */ 
-void sheetMove(SHEET * sht, int vx0, int vy0);
+void sheetMove(struct SHEET * sht, int vx0, int vy0);
 
 /**
  * @brief: Destroy a sheet (thus it is freed).
  * @param: (SHEET *)sht: The sheet to destroy.
  */ 
-void sheetDestroy(SHEET *sht);
+void sheetDestroy(struct SHEET *sht);
 
 /**
  * @brief: Refresh the map of sheets.
@@ -135,7 +103,7 @@ void sheetDestroy(SHEET *sht);
  * @param: (int) vy1: The right bottom y position to get refreshed.
  * @param: (int) leastRefHeight: Only sheets higher than or equal to this height will be updated.
  */ 
-void refreshSheetMap(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight);
+void refreshSheetMap(struct SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight);
 
 /**
  * @brief: Put a string onto a sheet.
@@ -146,6 +114,6 @@ void refreshSheetMap(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int
  * @param: (char *)The string.
  * @param: (int)l: Length of the string.
  */ 
-void putStringOnSheet(SHEET *sht, int x, int y, int c, int b, char *s, int l);
+void putStringOnSheet(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
 
 #endif

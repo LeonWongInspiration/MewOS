@@ -7,7 +7,7 @@
  * 
  */ 
 
-#if (!defined(WINDOW_H))
+#ifndef WINDOW_H
 #define WINDOW_H 1
 
 #include "Sheet.h"

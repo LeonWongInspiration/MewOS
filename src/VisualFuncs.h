@@ -7,7 +7,7 @@
  * 
  */ 
 
-#if (!defined(VISUAL_FUNCS_H))
+#ifndef VISUAL_FUNCS_H
 #define VISUAL_FUNCS_H 1
 
 #include "asm_funcs.h"

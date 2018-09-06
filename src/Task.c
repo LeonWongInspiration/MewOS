@@ -33,7 +33,7 @@ TASK *initTask(MEMORY_FREE_TABLE *memman){
 
     idle = allocTask();
     idle->tss.esp = allocMemoryForSize_Page(memman, 64 * 1024) + 64 * 1024;
-	idle->tss.eip = (int) &systemIdel;
+	idle->tss.eip = (int) &systemIdle;
 	idle->tss.es = 1 * 8;
 	idle->tss.cs = 2 * 8;
 	idle->tss.ss = 1 * 8;
@@ -50,7 +50,7 @@ TASK *allocTask(){
     TASK *task;
     for (i = 0; i < MAX_TASK; ++i) {
         if (taskManager->tasks[i].flags == TASK_FREE) {
-            task = taskManager->tasks + i;
+            task = &(taskManager->tasks[i]);
             task->flags = TASK_ASSIGNED;
             task->tss.eflags = 0x00000202; // IF = 1
             task->tss.eax = 0;
@@ -140,11 +140,12 @@ void setTaskSleep(TASK *task){
 }
 
 TASK *getCurrentTask(){
-    return taskManager->level[taskManager->currentLevel].tasks[taskManager->level[taskManager->currentLevel].now];
+    TASK_LEVEL *tl = &taskManager->level[taskManager->currentLevel];
+    return tl->tasks[tl->now];
 }
 
 void addTask(TASK *task){
-    TASK_LEVEL *tl = taskManager->level + task->level;
+    TASK_LEVEL *tl = &(taskManager->level[task->level]);
     tl->tasks[tl->running] = task;
     ++(tl->running);
     task->flags = TASK_RUNNING;
@@ -152,7 +153,7 @@ void addTask(TASK *task){
 
 void removeTask(TASK *task){
     int i;
-    TASK_LEVEL *tl = taskManager->level + task->level;
+    TASK_LEVEL *tl = &(taskManager->level[task->level]);
 
     // Find the index of the task to remove.
     for (i = 0; i < tl->running; ++i) {

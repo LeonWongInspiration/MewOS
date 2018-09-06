@@ -7,7 +7,7 @@
  * 
  */
 
-#if (!defined(WIDGETS_H))
+#ifndef WIDGETS_H
 #define WIDGETS_H 1
 
 #include "Sheet.h"

@@ -7,7 +7,7 @@
  * 
  */
 
-#if (!defined(ASM_FUNCS_H))
+#ifndef ASM_FUNCS_H
 #define ASM_FUNCS_H 1
 
 /**

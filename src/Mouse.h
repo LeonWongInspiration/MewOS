@@ -7,9 +7,10 @@
  * 
  */
 
-#if (!defined(MOUSE_H))
+#ifndef MOUSE_H
 #define MOUSE_H 1
 
+#include "Structs.h"
 #include "VisualFuncs.h"
 #include "Keyboard.h"
 #include "asm_funcs.h"
@@ -25,14 +26,6 @@ const static int KEYBOARD_CMD_SENDTO_MOUSE = 0xd4;
 /// CMD to enable mouse.
 const static int MOUSECMD_ENABLE = 0xf4;
 
-typedef struct MOUSE_DECODER{
-    unsigned char decodeBuffer[3]; // Because mouse data are in 3 bytes, we need a 3 byte array to contain them.
-    unsigned char phase; // Goes as 0, 1, 2, 3, 1, 2, 3, 1, 2, 3 ... to indicate the stat of mouse data.
-                        // Note that when phase == 0, we are waiting for mouse to get ready (0xfa).
-    int x, y; // Position.
-    int btn; // Stat of the buttons.
-} MOUSE_DECODER;
-
 /**
  * @brief: Init a mouse cursor UI
  * @param: char *mouse: The address to save the picture for mouse.
@@ -47,7 +40,7 @@ void init_mouse_cursor8(char *mouse, char bc);
  * @param: (MOUSE_DECODER *)mouseDecoder: The decoder strauct of the mouse.
  * @param: (int)data0: The constant that the data from mouse will add.
  */ 
-void enableMouse(FIFO32 *fifo, MOUSE_DECODER *mouseDecoder, int data0);
+void enableMouse(struct FIFOBuffer32 *fifo, struct MOUSE_DECODER *mouseDecoder, int data0);
 
 /**
  * @brief: Handle interrupts from Mouse.
@@ -70,6 +63,6 @@ void mouseInterruptHandler(int *esp);
  * @param: (uchar) dat: Data to be saved in the struct. 
  * @return: (int): If succeed in reading a data, you'll get 0, if succeed in reading a 3-byte array, you'll get 1. -1 if failed.
  */ 
-int mouseDecode(MOUSE_DECODER *mouseDecoder, unsigned char dat);
+int mouseDecode(struct MOUSE_DECODER *mouseDecoder, unsigned char dat);
 
 #endif

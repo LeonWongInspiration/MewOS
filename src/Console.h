@@ -7,7 +7,7 @@
  * 
  */
 
-#if (!defined(CONSOLE_H))
+#ifndef CONSOLE_H
 #define CONSOLE_H 1
 
 #include "Sheet.h"
@@ -23,6 +23,6 @@
  * @brief: Manage the task of console.
  * @param: (SHEET *)sheeet: The sheet of the console window.
  */ 
-void consoleTask(SHEET *sheet);
+void consoleTask(struct SHEET *sheet);
 
 #endif

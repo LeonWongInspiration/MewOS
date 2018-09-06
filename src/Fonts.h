@@ -7,7 +7,7 @@
  * 
  */
 
-#if (!defined(FONTS_H))
+#ifndef FONTS_H
 #define FONTS_H 1
 
 /// Font array, this array is linked from MewFont.obj file, in which ascii chars are defined in 8*16 matrices.

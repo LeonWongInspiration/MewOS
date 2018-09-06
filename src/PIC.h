@@ -7,7 +7,7 @@
  * 
  */ 
 
-#if (!defined(PIC_H))
+#ifndef PIC_H
 #define PIC_H 1
 
 #include "asm_funcs.h"

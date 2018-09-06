@@ -7,41 +7,16 @@
  * 
  */ 
 
-#if (!defined(FIFO_BUFFER_H))
+#ifndef FIFO_BUFFER_H
 #define FIFO_BUFFER_H 1
 
 #include "Task.h"
+#include "Structs.h"
 
 #include "include/stdio.h"
 
 /// Flag of OVERRUN
 const static int FIFO_BUFFER_OVERRUN = 0x0001;
-
-/**
- * @brief: A FIFO Buffer including 8 bit data.
- */ 
-typedef struct FIFOBuffer8{
-    unsigned char *buf; /// Buffer
-    int nextWrite; /// Index of next available byte to write.
-    int nextRead; /// Index of next byte to read.
-    int size; /// Size of the buffer.
-    int free; /// Number of spaces available.
-    int flags; /// Bitwise status indicator.
-} FIFO8;
-
-/**
- * @brief: A FIFO Buffer including 32bit data.
- */ 
-typedef struct FIFOBuffer32{
-    int *buf; /// Buffer
-    int nextWrite; /// Index of next available byte to write.
-    int nextRead; /// Index of next byte to read.
-    int size; /// Size of the buffer.
-    int free; /// Number of spaces available.
-    int flags; /// Bitwise status indicator.
-
-    TASK *task; /// This allow buffer to wake up a task when adding elems.
-} FIFO32;
 
 /**
  * @brief: Init a FIFO8 Buffer
@@ -50,7 +25,7 @@ typedef struct FIFOBuffer32{
  * @param: uchar *buf: The memory allocated for the buffer.
  * @warning: The size of the buffer should be the same with the real size of the buf array!
  */ 
-void fifo8_init(FIFO8 *fifo, int size, unsigned char *buf);
+void fifo8_init(struct FIFOBuffer8 *fifo, int size, unsigned char *buf);
 
 /**
  * @brief: Put an element into the FIFO8 Buffer
@@ -58,7 +33,7 @@ void fifo8_init(FIFO8 *fifo, int size, unsigned char *buf);
  * @param: uchar data: The data to be added.
  * @return: int, 0 if succeed, -1 otherwise.
  */ 
-int fifo8_put(FIFO8 *fifo, unsigned char data);
+int fifo8_put(struct FIFOBuffer8 *fifo, unsigned char data);
 
 /**
  * @brief: Get the first elem in the buffer.
@@ -66,14 +41,14 @@ int fifo8_put(FIFO8 *fifo, unsigned char data);
  * @param: uchar *data: The uchar which will be set the value of the first elem.
  * @return: int, 0 if succeed, -1 otherwise.
  */ 
-int fifo8_get(FIFO8 *fifo, unsigned char *data);
+int fifo8_get(struct FIFOBuffer8 *fifo, unsigned char *data);
 
 /**
  * @brief: Get how many elems are in a FIFO8 Buffer.
  * @param: FIFO8 *fifo: The FIFO8 Buffer.
  * @return: int, the number of total elems in the Buffer.
  */ 
-int fifo8_status(FIFO8 *fifo);
+int fifo8_status(struct FIFOBuffer8 *fifo);
 
 /**
  * @brief: Init a FIFO32 Buffer
@@ -84,7 +59,7 @@ int fifo8_status(FIFO8 *fifo);
  * @warning: The size of the buffer should be the same with the real size of the buf array!
  * @warning: You can assign NULL for the task, thus the buffer won't wake up a task when adding elems.
  */ 
-void fifo32_init(FIFO32 *fifo, int size, int *buf, TASK *task);
+void fifo32_init(struct FIFOBuffer32 *fifo, int size, int *buf, struct TASK *task);
 
 /**
  * @brief: Put an element into the FIFO32 Buffer
@@ -92,7 +67,7 @@ void fifo32_init(FIFO32 *fifo, int size, int *buf, TASK *task);
  * @param: (int) data: The data to be added.
  * @return: int, 0 if succeed, -1 otherwise.
  */ 
-int fifo32_put(FIFO32 *fifo, int data);
+int fifo32_put(struct FIFOBuffer32 *fifo, int data);
 
 /**
  * @brief: Get the first elem in the buffer.
@@ -100,13 +75,13 @@ int fifo32_put(FIFO32 *fifo, int data);
  * @param: (int *)data: The uchar which will be set the value of the first elem.
  * @return: int, 0 if succeed, -1 otherwise.
  */ 
-int fifo32_get(FIFO32 *fifo, int *data);
+int fifo32_get(struct FIFOBuffer32 *fifo, int *data);
 
 /**
  * @brief: Get how many elems are in a FIFO32 Buffer.
  * @param: FIFO32 *fifo: The FIFO8 Buffer.
  * @return: int, the number of total elems in the Buffer.
  */ 
-int fifo32_status(FIFO32 *fifo);
+int fifo32_status(struct FIFOBuffer32 *fifo);
 
 #endif

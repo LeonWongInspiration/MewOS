@@ -4,7 +4,7 @@ INCLUDE_PATH = ../src/include/
 OBJ_FILES = C_Entry.obj asm_funcs.obj MewFont.obj Fonts.obj \
  VisualFuncs.obj Mouse.obj GDT.obj IDT.obj PIC.obj \
  Keyboard.obj FIFOBuffer.obj Memorie.obj Sheet.obj \
- Window.obj Timer.obj Widgets.obj Task.obj
+ Window.obj Timer.obj Widgets.obj Task.obj Console.obj
 
 MAKE = make -r
 NASK = $(TOOLPATH)nask
