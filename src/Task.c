@@ -94,7 +94,7 @@ void runTask(TASK *task, int level, int priority){
 }
 
 void switchTask(){
-    TASK_LEVEL *tl = taskManager->level + taskManager->currentLevel;
+    TASK_LEVEL *tl = &(taskManager->level[taskManager->currentLevel]);
     TASK *newTask;
     TASK *currentTask = tl->tasks[tl->now];
     ++(tl->now);
@@ -103,7 +103,7 @@ void switchTask(){
     }
     if (taskManager->levelChange != 0) { // We need to check if the level should be changed.
         switchTaskSub();
-        tl = taskManager->level + taskManager->currentLevel;
+        tl = &(taskManager->level[taskManager->currentLevel]);
     }
     newTask = tl->tasks[tl->now];
     timerSetTimeOut(taskTimer, newTask->priority);
@@ -140,7 +140,7 @@ void setTaskSleep(TASK *task){
 }
 
 TASK *getCurrentTask(){
-    TASK_LEVEL *tl = &taskManager->level[taskManager->currentLevel];
+    TASK_LEVEL *tl = &(taskManager->level[taskManager->currentLevel]);
     return tl->tasks[tl->now];
 }
 

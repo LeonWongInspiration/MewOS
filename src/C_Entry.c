@@ -27,7 +27,7 @@
 
 #include "include\stdio.h"
 
-static const char *version = "MewOS 0.2.1.0";
+static const char *version = "MewOS 0.3.0.0";
 
 /**
  * ENTRY FUNCTION!
@@ -35,7 +35,6 @@ static const char *version = "MewOS 0.2.1.0";
 void MewOSMain();
 
 void MewOSMain(){
-
 	BootInfo *binfo = (BootInfo *) ADR_BOOTINFO;
 	FIFO32 fifo; // Unified FIFO buffer for IRQs.
 	FIFO32 keycmd; // Keyboard commands.
@@ -309,6 +308,7 @@ void MewOSMain(){
 			}
 			// ------ Cursor timer ------ //
 			else if (i <= 1) {
+				// __STOP
 				if (i != 0) {
 					initTimer(timer, &fifo, 0);
 					cursorColor = COL8_000000;

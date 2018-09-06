@@ -62,9 +62,11 @@ int fifo32_put(FIFO32 *fifo, int data){
 		fifo->nextWrite = 0;
 	}
 	--(fifo->free);
-    if (fifo->task != NULL && fifo->task->flags != TASK_RUNNING) {
-        runTask(fifo->task, -1, 0); // Level = -1 means we do not change its level,
+    if (fifo->task != NULL) {
+        if (fifo->task->flags != TASK_RUNNING){
+            runTask(fifo->task, -1, 0); // Level = -1 means we do not change its level,
         // and priority = 0 means in this level the task should be executed IMMEDIATELY.
+        }
     }
 	return 0;
 }

@@ -72,22 +72,31 @@ void timerSetTimeOut(TIMER *timer, unsigned int timeout){
 
 void timerInterruptHandler(int *esp){
 	TIMER *timer;
+	char taskSwitch = 0;
 	io_out8(PIC0_OCW2, 0x60); // IRQ has been handled.
 	++(timerManager.count);
 	if (timerManager.next > timerManager.count){
 		return;
 	}
 	timer = timerManager.t0;
-	while(1){
+	while (1){
 		// For timers are all currently running, there's no need to store eflags.
 		if (timer->timeout > timerManager.count){
 			break;
 		}
 		// TIME OUT!
 		timer->flags = TIMER_ALLOCED;
-		fifo32_put(timer->fifo, timer->data);
+		if (timer != taskTimer){
+			fifo32_put(timer->fifo, timer->data);
+		}
+		else {
+			taskSwitch = 1;
+		}
 		timer = timer->next;
 	}
 	timerManager.t0 = timer;
 	timerManager.next = timer->timeout;
+	if (taskSwitch != 0){
+		switchTask();
+	}
 }
