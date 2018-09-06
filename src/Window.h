@@ -24,4 +24,14 @@
  */ 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 
+/**
+ * @brief: Draw the title of a window separately from the body of the window.
+ * @param: (uchar *)buf: The buffer of the window.
+ * @param: (int)xsize: X size of the window.
+ * @param: (int)ysize: Y size of the window.
+ * @param: (char *)title: The title of the window.
+ * @param: (char)act: Whether this window is in the front. (i.e. currently running)
+ */ 
+void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
+
 #endif

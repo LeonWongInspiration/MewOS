@@ -1,7 +1,7 @@
 /** Multi-Task Management
  * 
  * @author: Leon Wong
- * @build: 201809052203
+ * @build: 201809061850
  * @brief: This file includes fuctions on multitasking and task management.
  * @usage: This file shoule be both included and compiled.
  * 
@@ -43,6 +43,7 @@ typedef struct TASK {
     int flags;
     int level; // Priority of a series of tasks. Tasks will be executed first according to its level,
     int priority; // then its priority.
+    FIFO32 fifo;
     TASK_STAT_SEGM tss;
 } TASK;
 
