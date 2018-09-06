@@ -9,6 +9,7 @@ TASK_MANAGER *taskManager;
 TASK *initTask(MEMORY_FREE_TABLE *memman){
     int i;
     TASK *task;
+    TASK *idle; // This task just set the system idle, and we add this task to the end of task list, therefore, when all tasks are not running (sleep), the system will halt.
     SEGMENT_DESCRIPTOR *gdt = (SEGMENT_DESCRIPTOR *) GDTAddress;
     taskManager = (TASK_MANAGER *) allocMemoryForSize_Page(memman, sizeof(TASK_MANAGER));
     for (i = 0; i < MAX_TASK; ++i) {
@@ -29,6 +30,18 @@ TASK *initTask(MEMORY_FREE_TABLE *memman){
     load_tr(task->selector);
     taskTimer = allocTimer();
     timerSetTimeOut(taskTimer, task->priority); // Priority = 2 means switching tasks every 0.02s
+
+    idle = allocTask();
+    idle->tss.esp = allocMemoryForSize_Page(memman, 64 * 1024) + 64 * 1024;
+	idle->tss.eip = (int) &systemIdel;
+	idle->tss.es = 1 * 8;
+	idle->tss.cs = 2 * 8;
+	idle->tss.ss = 1 * 8;
+	idle->tss.ds = 1 * 8;
+	idle->tss.fs = 1 * 8;
+	idle->tss.gs = 1 * 8;
+	runTask(idle, MAX_TASKSLVLS - 1, 1);
+    
     return task;
 }
 
@@ -161,5 +174,11 @@ void removeTask(TASK *task){
     // Move those tasks behind.
     for (; i < tl->running; ++i) {
         tl->tasks[i] = tl->tasks[i + 1];
+    }
+}
+
+void systemIdle(){
+    while (1) {
+        io_hlt();
     }
 }

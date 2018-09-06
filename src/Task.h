@@ -119,6 +119,11 @@ void addTask(TASK *task);
  */ 
 void removeTask(TASK *task);
 
+/**
+ * @brief: Call this function when there are no tasks running.
+ */ 
+void systemIdel();
+
 extern TASK_MANAGER *taskManager;
 
 #endif
