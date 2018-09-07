@@ -23,6 +23,26 @@ struct BootInfo {
 
 typedef struct BootInfo BootInfo;
 
+// ------ Console.h ------ //
+struct CONSOLE {
+    struct SHEET *sheet;
+    int curX, curY, curColor;
+};
+
+typedef struct CONSOLE CONSOLE;
+
+// ------ FAT.h ------ //
+struct FAT12 {
+    unsigned char name[8];
+    unsigned char ext[3];
+    unsigned char type;
+    char reserve[10];
+    unsigned short time, date, clusterNo;
+    unsigned int size;
+};
+
+typedef struct FAT12 FAT12;
+
 // ------ FIFOBuffer.h ------ //
 
 /**
