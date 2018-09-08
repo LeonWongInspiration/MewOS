@@ -88,7 +88,7 @@ void consoleTask(SHEET *sheet, unsigned int totalMemory){
 
 void consolePutChar(CONSOLE *cons, int chr, char move) {
     char s[2];
-    s[0] = (char) chr;
+    s[0] = chr;
     s[1] = '\0';
     if (s[0] == 0x09) { // \t
         while (1) {
@@ -141,7 +141,7 @@ void consoleNewLine(CONSOLE *cons){
 }
 
 void consoleWrite(CONSOLE *cons, char *s) {
-    for (; s != '\0'; ++s) {
+    for (; *s != '\0'; ++s) {
         consolePutChar(cons, *s, 1);
     }
 }

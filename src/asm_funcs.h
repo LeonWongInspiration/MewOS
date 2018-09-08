@@ -135,4 +135,10 @@ void farjmp(int eip, int cs);
  */ 
 void farcall(int eip, int cs);
 
+/**
+ * @brief: MewOS System API function.
+ * @param: (int)registers.
+ */ 
+void asm_mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
+
 #endif

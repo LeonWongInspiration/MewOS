@@ -12,6 +12,9 @@ void initIDT(){
 	setIDT(idt + 0x21, (int) asm_inthandler21, 2 * 8, AR_INTGATE32);
 	setIDT(idt + 0x27, (int) asm_inthandler27, 2 * 8, AR_INTGATE32);
 	setIDT(idt + 0x2c, (int) asm_inthandler2c, 2 * 8, AR_INTGATE32);
+
+	// ------ Register MewOS System Call API ------ //
+	setIDT(idt + 0x40, (int) asm_mew_api, 2 * 8, AR_INTGATE32);
 }
 
 void setIDT(GATE_DESCRIPTOR *gd, int offset, int selector, int ar){
