@@ -3,9 +3,10 @@
 void readFAT12(int *fat, unsigned char *img){
     int i;
     int j = 0;
-    for (i = 0; i < 2880; i += 2, j += 3) {
+    for (i = 0; i < 2880; i += 2) {
         fat[i] = (img[j] | img[j + 1] << 8) & 0xfff;
         fat[i + 1] = (img[j + 1] >> 4 | img[j + 2] << 4) & 0xfff;
+        j += 3;
     }
 }
 

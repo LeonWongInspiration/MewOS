@@ -32,11 +32,14 @@
 		GLOBAL	_memtest_sub
 		GLOBAL	_load_tr
 		GLOBAL	_farjmp
+		GLOBAL	_farcall
+		GLOBAL	_asm_mew_api
 
 		EXTERN	_inthandler20 	; Functions from C
 		EXTERN	_inthandler21
 		EXTERN	_inthandler27
 		EXTERN	_inthandler2c
+		EXTERN	_mew_api
 
 ; Function realization
 
@@ -230,3 +233,16 @@ _load_tr:		; void load_tr(int tr);
 _farjmp:		; void farjmp(int eip, int cs);
 		JMP		FAR	[ESP+4]				; eip, cs
 		RET
+
+_farcall:		; void farcall(int eip, int cs);
+		CALL	FAR	[ESP+4]				; eip, cs
+		RET
+
+_asm_mew_api:	; MewOS API call, allow third-party binaries to call functions provided by MewOS
+		STI
+		PUSHAD	; Save the data of registers.
+		PUSHAD	; Prepare params to call _mew_api
+		CALL	_mew_api
+		ADD		ESP,32
+		POPAD
+		IRETD

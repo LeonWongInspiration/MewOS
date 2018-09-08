@@ -51,6 +51,8 @@ const static int KEY_NUMLOCK = 0x45;
 const static int KEY_SCROLLLOCK = 0x46;
 const static int KEY_SEND_SUCCESS = 0xfa;
 const static int KEY_SEND_FAIL = 0xfe;
+const static int KEY_ENTER = 0x1c;
+const static int KEY_BACKSPACE = 0x0e;
 
 /**
  * @brief: Handle interrupts from keyboard.

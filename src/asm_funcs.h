@@ -128,4 +128,11 @@ void load_tr(int tr);
  */ 
 void farjmp(int eip, int cs);
 
+/**
+ * @brief: Far CALL, call and run another segment of codes.
+ * @param: (int)eip: New EIP register.
+ * @param: (int)cs: New segment.
+ */ 
+void farcall(int eip, int cs);
+
 #endif

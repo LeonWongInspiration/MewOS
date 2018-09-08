@@ -4,7 +4,8 @@ INCLUDE_PATH = ../src/include/
 OBJ_FILES = C_Entry.obj asm_funcs.obj MewFont.obj Fonts.obj \
  VisualFuncs.obj Mouse.obj GDT.obj IDT.obj PIC.obj \
  Keyboard.obj FIFOBuffer.obj Memorie.obj Sheet.obj \
- Window.obj Timer.obj Widgets.obj Task.obj Console.obj
+ Window.obj Timer.obj Widgets.obj Task.obj Console.obj \
+ FAT.obj
 
 MAKE = make -r
 NASK = $(TOOLPATH)nask
@@ -58,13 +59,18 @@ C_Entry.bim : $(OBJ_FILES) Makefile
 C_Entry.hrb : C_Entry.bim Makefile
 	$(BIM2HRB) C_Entry.bim C_Entry.hrb 0
 
+hello.hrb : hello.nas Makefile
+	$(NASK) hello.nas hello.hrb hello.lst
+
 MewOS.sys : MewOS.bin C_Entry.hrb Makefile
 	$(COPY) /B MewOS.bin+C_Entry.hrb MewOS.sys
 
-MewOS.img : $(IPL_NAME).bin MewOS.sys Makefile
+MewOS.img : $(IPL_NAME).bin MewOS.sys hello.hrb Makefile
 	$(EDIMG) imgin:../tools/fdimg0at.tek \
 	wbinimg src:$(IPL_NAME).bin len:512 from:0 to:0 \
 	copy from:MewOS.sys to:@: \
+	copy from:$(IPL_NAME).nas to:@: \
+	copy from:hello.hrb to:@: \
 	imgout:MewOS.img
 
 img :

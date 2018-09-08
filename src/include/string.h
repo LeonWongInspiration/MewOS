@@ -6,7 +6,7 @@
 	extern "C" {
 #endif
 
-#include <stddef.h>		/* size_t */
+#include "stddef.h"		/* size_t */
 
 char *strcpy(char *s, const char *ct);
 char *strncpy(char *s, const char *ct, size_t n);

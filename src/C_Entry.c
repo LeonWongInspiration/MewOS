@@ -1,7 +1,7 @@
 /**
  * @brief: The Entry of C system files.
  * @author: Leon Wong
- * @build: 201808040956
+ * @build: 2018009081754
  * @usage: Be compiled!
  */ 
 
@@ -25,7 +25,8 @@
 #include "Widgets.h"
 #include "Console.h"
 
-#include "include\stdio.h"
+#include "include/stdio.h"
+#include "include/string.h"
 
 static const char *version = "MewOS 0.3.0.0";
 
@@ -105,7 +106,7 @@ void MewOSMain(){
 	make_window8(bufferConsole, 256, 165, "Console", 0);
 	make_textbox8(sheetConsole, 8, 28, 240, 128, COL8_000000);
 	taskConsole = allocTask();
-	taskConsole->tss.esp = allocMemoryForSize_Page(memman, 64 * 1024) + 64 * 1024 - 8;
+	taskConsole->tss.esp = allocMemoryForSize_Page(memman, 64 * 1024) + 64 * 1024 - 12;
 	taskConsole->tss.eip = (int) &consoleTask;
 	taskConsole->tss.es = 1 * 8;
 	taskConsole->tss.cs = 2 * 8;
@@ -114,6 +115,7 @@ void MewOSMain(){
 	taskConsole->tss.fs = 1 * 8;
 	taskConsole->tss.gs = 1 * 8;
 	*((int *) (taskConsole->tss.esp + 4)) = (int) sheetConsole; // "Variable passing"
+	*((int *) (taskConsole->tss.esp + 8)) = totalMemory;
 	runTask(taskConsole, 2, 2);
 
 	// ------ Window sheet init ------ //
@@ -146,11 +148,11 @@ void MewOSMain(){
 	setSheetHeight(sheetWindow, 2);
 	setSheetHeight(sheetMouse, 3);
 
-	sprintf(s, "(%3d, %3d)", mx, my);
-	putStringOnSheet(sheetBackground, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
-	sprintf(s, "memory %dMB   free : %dKB",
-			totalMemory / (1024 * 1024), getAvailableMemorySpace(memman) / 1024);
-	putStringOnSheet(sheetBackground, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
+	// sprintf(s, "(%3d, %3d)", mx, my);
+	// putStringOnSheet(sheetBackground, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
+	// sprintf(s, "memory %dMB   free : %dKB",
+	// 		totalMemory / (1024 * 1024), getAvailableMemorySpace(memman) / 1024);
+	// putStringOnSheet(sheetBackground, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
 
 	// ------ Timer debug ------ //
 	//if (timer == NULL) { putStringOnSheet(sheetBackground, 0, 128, COL8_FFFF00, COL8_000000, "Timer is NULL", 13); }
@@ -179,8 +181,8 @@ void MewOSMain(){
 			fifo32_get(&fifo, &i);
 			io_sti();
 			if (i >= keydata0 && i < mousedata0) {
-				sprintf(s, "%02X", i - keydata0);
-				putStringOnSheet(sheetBackground, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
+				// sprintf(s, "%02X", i - keydata0);
+				// putStringOnSheet(sheetBackground, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
 				if (i < 0x80 + keydata0) {
 					// First deal with shift key.
 					if (keyShift == 0) {
@@ -218,16 +220,37 @@ void MewOSMain(){
 					}
 				}
 				// ------ Now deal with function keys ------ //
+				if (i == keydata0 + KEY_BACKSPACE) {
+					if (keyTo == 0) {
+						if (cursorX > 8) {
+							putStringOnSheet(sheetWindow, cursorX, 28, COL8_000000, COL8_FFFFFF, " ", 1);
+							cursorX -= 8;
+						}
+					}
+					else {
+						fifo32_put(&(taskConsole->fifo), keydata0 + (int)'\b');
+					}
+				}
+				if (i == keydata0 + KEY_ENTER) {
+					if (keyTo != 0) {
+						fifo32_put(&(taskConsole->fifo), keydata0 + (int)'\n');
+					}
+				}
 				if (i == keydata0 + KEY_TAB) {
 					if (keyTo == 0) {
 						keyTo = 1; // Change front window
 						make_wtitle8(bufferWindow, sheetWindow->bxsize, "some task", 0);
 						make_wtitle8(bufferConsole, sheetConsole->bxsize, "Console", 1);
+						cursorColor = -1;
+						boxfill8(sheetWindow->buf, sheetWindow->bxsize, COL8_FFFFFF, cursorX, 28, cursorX + 7, 43);
+						fifo32_put(&(taskConsole->fifo), 2); // Call console to allow cursor.
 					}
 					else {
 						keyTo = 0;
 						make_wtitle8(bufferWindow, sheetWindow->bxsize, "some task", 1);
 						make_wtitle8(bufferConsole, sheetConsole->bxsize, "Console", 0);
+						cursorColor = COL8_000000;
+						fifo32_put(&(taskConsole->fifo), 3); // Call console to disallow cursor.
 					}
 					sheetRefresh(sheetWindow, 0, 0, sheetWindow->bxsize, 21);
 					sheetRefresh(sheetConsole, 0, 0, sheetConsole->bxsize, 21);
@@ -267,23 +290,25 @@ void MewOSMain(){
 					io_out8(PORT_KEYBOARD, keycmdWait);
 				}
 				// Show the cursor again.
-				boxfill8(sheetWindow->buf, sheetWindow->bxsize, cursorColor, cursorX, 28, cursorX + 7, 43);
+				if (cursorColor >= 0){
+					boxfill8(sheetWindow->buf, sheetWindow->bxsize, cursorColor, cursorX, 28, cursorX + 7, 43);
+				}
 				sheetRefresh(sheetWindow, cursorX, 28, cursorX + 8, 44);
 			}
 			// ------ Mouse ------ //
 			else if (i >= mousedata0 && i <= 767) {
 				if (mouseDecode(&mdec, i - mousedata0) != 0) {
-					sprintf(s, "[lcr %4d %4d]", mdec.x, mdec.y);
-					if ((mdec.btn & 0x01) != 0) {
-						s[1] = 'L';
-					}
-					if ((mdec.btn & 0x02) != 0) {
-						s[3] = 'R';
-					}
-					if ((mdec.btn & 0x04) != 0) {
-						s[2] = 'C';
-					}
-					putStringOnSheet(sheetBackground, 32, 16, COL8_FFFFFF, COL8_008484, s, 15);
+					// sprintf(s, "[lcr %4d %4d]", mdec.x, mdec.y);
+					// if ((mdec.btn & 0x01) != 0) {
+					// 	s[1] = 'L';
+					// }
+					// if ((mdec.btn & 0x02) != 0) {
+					// 	s[3] = 'R';
+					// }
+					// if ((mdec.btn & 0x04) != 0) {
+					// 	s[2] = 'C';
+					// }
+					// putStringOnSheet(sheetBackground, 32, 16, COL8_FFFFFF, COL8_008484, s, 15);
 					mx += mdec.x;
 					my += mdec.y;
 					if (mx < 0) {
@@ -298,8 +323,8 @@ void MewOSMain(){
 					if (my > binfo->scrny - 1) {
 						my = binfo->scrny - 1;
 					}
-					sprintf(s, "(%3d, %3d)", mx, my);
-					putStringOnSheet(sheetBackground, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
+					// sprintf(s, "(%3d, %3d)", mx, my);
+					// putStringOnSheet(sheetBackground, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
 					sheetMove(sheetMouse, mx, my);
 					if ((mdec.btn & 0x01) != 0) {
 						sheetMove(sheetWindow, mx - 80, my - 8);
@@ -311,15 +336,21 @@ void MewOSMain(){
 				// __STOP
 				if (i != 0) {
 					initTimer(timer, &fifo, 0);
-					cursorColor = COL8_000000;
+					if (cursorColor >= 0){
+						cursorColor = COL8_000000;
+					}
 				}
 				else {
 					initTimer(timer, &fifo, 1);
-					cursorColor = COL8_FFFFFF;
+					if (cursorColor >= 0){
+						cursorColor = COL8_FFFFFF;
+					}
 				}
 				timerSetTimeOut(timer, 50);
-				boxfill8(sheetWindow->buf, sheetWindow->bxsize, cursorColor, cursorX, 28, cursorX + 7, 43);
-				sheetRefresh(sheetWindow, cursorX, 28, cursorX + 8, 44);
+				if (cursorColor >= 0){
+					boxfill8(sheetWindow->buf, sheetWindow->bxsize, cursorColor, cursorX, 28, cursorX + 7, 43);
+					sheetRefresh(sheetWindow, cursorX, 28, cursorX + 8, 44);
+				}
 			}
 		}
 	}

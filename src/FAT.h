@@ -14,6 +14,8 @@
 
 #include "include/stdio.h"
 
+const static int DISKIMG_ADDRESS = 0x00100000;
+
 /**
  * @brief: Read a FAT12 table from img's address and save cluster numbers to fat array.
  * @param: (int *)fat: The array to save cluster numbers.
