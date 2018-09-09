@@ -64,6 +64,7 @@ void MewOSMain(){
 	int keyShift = 0;
 	int keyLed = (binfo->leds >> 4) & 7;
 	int keycmdWait = -1;
+	CONSOLE *cons;
 
 	// ------ Do system init ------ //
 	initGDT();
@@ -92,6 +93,7 @@ void MewOSMain(){
 	taskA = initTask(memman);
 	fifo.task = taskA;
 	runTask(taskA, 1, 2);
+	*((int *) 0x0fe4) = (int) sheetManager;
 
 	// ------ Background sheet init ------ //
 	sheetBackground = allocASheetForWindow(sheetManager);
@@ -281,6 +283,14 @@ void MewOSMain(){
 					keyLed ^= 1;
 					fifo32_put(&keycmd, KEYBOARD_CMD_LED);
 					fifo32_put(&keycmd, keyLed);
+				}
+				if (i == 256 + 0x3b && keyShift != 0 && taskConsole->tss.ss0 != 0) {
+					cons = (CONSOLE *) *((int *) 0x0fec);
+					consoleWrite(cons, "\nSignal (Kill task)\n");
+					io_cli();
+					taskConsole->tss.eax = (int) &(taskConsole->tss.esp0);
+					taskConsole->tss.eip = (int) asm_kill_app;
+					io_sti();
 				}
 				if (i == keydata0 + KEY_SEND_SUCCESS) {
 					keycmdWait = -1;

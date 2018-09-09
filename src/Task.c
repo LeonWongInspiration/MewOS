@@ -130,12 +130,12 @@ void setTaskSleep(TASK *task){
         // If the task to sleep is now running.
         currentTask = getCurrentTask();
         removeTask(task); // The flag of this task will be TASK_ASSIGNED.
-    }
-    if (task == currentTask) {
-        // If we let current task sleep, we have to switch task.
-        switchTaskSub();
-        currentTask = getCurrentTask();
-        farjmp(0, currentTask->selector);
+        if (task == currentTask) {
+            // If we let current task sleep, we have to switch task.
+            switchTaskSub();
+            currentTask = getCurrentTask();
+            farjmp(0, currentTask->selector);
+        }
     }
 }
 

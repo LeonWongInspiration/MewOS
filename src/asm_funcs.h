@@ -73,6 +73,18 @@ void load_gdtr(int limit, int addr);
 void load_idtr(int limit, int addr);
 
 /**
+ * @brief: Interrupt handler for Console
+ * @seealso: inthandler0c
+ */ 
+void asm_inthandler0c();
+
+/**
+ * @brief: Interrupt handler for Console
+ * @seealso: inthandler0d
+ */ 
+void asm_inthandler0d();
+
+/**
  * @brief: Interrupt handler for Timer
  * @seealso: inthandler20
  */ 
@@ -140,5 +152,17 @@ void farcall(int eip, int cs);
  * @param: (int)registers.
  */ 
 void asm_mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
+
+/**
+ * @brief: Start an app.
+ * @param: (int) registers
+ * @param: (int *) ESP0 in TSS32.
+ */ 
+void start_app(int eip, int cs, int esp, int ds, int *tss_esp0);
+
+/**
+ * @brief: Kill an app's task.
+ */ 
+void asm_kill_app();
 
 #endif

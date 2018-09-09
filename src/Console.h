@@ -20,6 +20,7 @@
 #include "Mouse.h"
 #include "FAT.h"
 #include "Structs.h"
+#include "Window.h"
 
 #include "include/stdio.h"
 #include "include/string.h"
@@ -111,7 +112,22 @@ int cmdCALL(struct CONSOLE *cons, int *fat, char *cmd);
 /**
  * @brief: MewOS API call.
  * @param: (int)registers.
+ * @return: (int *): The address of the task for some API calls.
  */ 
-void mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
+int *mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
+
+/**
+ * @brief: Handle Stack Exception.
+ * @param: (int *)esp: ESP register.
+ * @return: (int *)The esp of the task.
+ */ 
+int *stackExceptionHandler(int *esp);
+
+/**
+ * @brief: Handle General Protected Exception.
+ * @param: (int *)esp: ESP register.
+ * @return: (int *)The esp of the task.
+ */ 
+int *generalProtectedExceptionHandler(int *esp);
 
 #endif

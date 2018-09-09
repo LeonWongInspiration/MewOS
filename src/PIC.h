@@ -17,6 +17,7 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Timer.h"
+#include "Console.h"
 
 /// Relative addresses
 const static int PIC0_ICW1 = 0x0020; /// ICW: Initial Control Word
@@ -36,6 +37,20 @@ const static int PIC1_ICW4 = 0x00a1;
  * @brief: This function inits PIC.
  */ 
 void initPIC();
+
+/**
+ * @brief: Handle interrupts when stack throws exceptions.
+ * @param: (int *)esp: ESP register.
+ * @return: (int *)The esp0 of the stack who throws the exception.
+ */ 
+int *inthandler0c(int *esp);
+
+/**
+ * @brief: Handle interrupts for general protected exceptions.
+ * @param: (int *)eap: ESP register.
+ * @return (int *): The ESP of the task who throws the exception.
+ */ 
+int *inthandler0d(int *esp);
 
 /**
  * @brief: Handle interrupts from timer.

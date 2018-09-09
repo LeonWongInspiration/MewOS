@@ -17,6 +17,7 @@ MAKEFONT = $(TOOLPATH)makefont.exe
 OBJ2BIM = $(TOOLPATH)obj2bim
 BIM2HRB = $(TOOLPATH)bim2hrb
 RULEFILE = $(TOOLPATH)mewos.rul
+HARIRULE = $(TOOLPATH)harirul.rul
 IPL_NAME = ipl10
 COPY = copy
 DEL = del
@@ -59,18 +60,22 @@ C_Entry.bim : $(OBJ_FILES) Makefile
 C_Entry.hrb : C_Entry.bim Makefile
 	$(BIM2HRB) C_Entry.bim C_Entry.hrb 0
 
-hello.hrb : hello.nas Makefile
-	$(NASK) hello.nas hello.hrb hello.lst
+winhelo.bim : winhelo.obj API.obj Makefile
+	$(OBJ2BIM) @$(HARIRULE) out:winhelo.bim stack:1k map:winhelo.map \
+	winhelo.obj API.obj
+
+winhelo.hrb : winhelo.bim Makefile
+	$(BIM2HRB) winhelo.bim winhelo.hrb 0
 
 MewOS.sys : MewOS.bin C_Entry.hrb Makefile
 	$(COPY) /B MewOS.bin+C_Entry.hrb MewOS.sys
 
-MewOS.img : $(IPL_NAME).bin MewOS.sys hello.hrb Makefile
+MewOS.img : $(IPL_NAME).bin MewOS.sys winhelo.hrb Makefile
 	$(EDIMG) imgin:../tools/fdimg0at.tek \
 	wbinimg src:$(IPL_NAME).bin len:512 from:0 to:0 \
 	copy from:MewOS.sys to:@: \
 	copy from:$(IPL_NAME).nas to:@: \
-	copy from:hello.hrb to:@: \
+	copy from:winhelo.hrb to:@: \
 	imgout:MewOS.img
 
 img :

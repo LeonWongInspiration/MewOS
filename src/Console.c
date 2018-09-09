@@ -164,12 +164,15 @@ void consoleRunCmd(char *cmdline, CONSOLE *cons, int *fat, unsigned int totalMem
     else if (strcmp(cmdline, "ls") == 0) {
         cmdLS(cons);
     }
+    else if (strncmp(cmdline, "cat", 3) == 0 && (cmdline[3] == '\0' || cmdline[4] == '\0')) {
+        consoleWrite(cons, "cat: requires one argument\n\n");
+    }
     else if (strncmp(cmdline, "cat ", 4) == 0) {
         cmdCAT(cons, fat, cmdline);
     }
     else if (cmdline[0] != '\0') {
         if (cmdCALL(cons, fat, cmdline) == 0) {
-            consoleWrite(cons, "Command not found\n\n");
+            consoleWrite(cons, "Command not found.\n\n");
         }
     }
 }
@@ -220,7 +223,7 @@ void cmdLS(CONSOLE *cons) {
 
 void cmdCAT(CONSOLE *cons, int *fat, char *cmdline) {
     MEMORY_FREE_TABLE *memman = (MEMORY_FREE_TABLE *) MEMORY_MANAGER_ADDR;
-    FAT12 *file = searchFile(cmdline + 5, (FAT12 *) (DISKIMG_ADDRESS + 0x002600), 224);
+    FAT12 *file = searchFile(cmdline + 4, (FAT12 *) (DISKIMG_ADDRESS + 0x002600), 224);
     char *p;
     if (file != NULL) {
         p = (char *) allocMemoryForSize_Page(memman, file->size);
@@ -240,7 +243,9 @@ int cmdCALL(CONSOLE *cons, int *fat, char *cmd) {
     SEGMENT_DESCRIPTOR *gdt = (SEGMENT_DESCRIPTOR *) GDTAddress;
     char name[18];
     char *p;
-    int i;
+    char *q;
+    TASK *task = getCurrentTask();
+    int i, segsiz, datsiz, esp, dathrb;
 
     // Handle the name of the file.
     for (i = 0; i < 13; ++i) {
@@ -267,8 +272,24 @@ int cmdCALL(CONSOLE *cons, int *fat, char *cmd) {
         // Found the file.
         p = (char *) allocMemoryForSize_Page(memman, file->size);
         loadFile(file->clusterNo, file->size, p, fat, (char *) (DISKIMG_ADDRESS + 0x003e00));
-        setGDT(gdt + 1003, file->size - 1, (int) p, AR_CODE32_ER);
-        farcall(0, 1003 * 8);
+        if (file->size >= 36 && strncmp(p + 4, "Hari", 4) == 0 && *p == 0x00) {
+            segsiz = *((int *) (p + 0x0000));
+			esp    = *((int *) (p + 0x000c));
+			datsiz = *((int *) (p + 0x0010));
+			dathrb = *((int *) (p + 0x0014));
+			q = (char *) allocMemoryForSize_Page(memman, segsiz);
+            *((int *) 0xfe8) = (int) q;
+            setGDT(gdt + 1003, file->size - 1, (int) p, AR_CODE32_ER + 0x60);
+            setGDT(gdt + 1004, segsiz - 1, (int) q, AR_DATA32_RW + 0x60);
+            for (i = 0; i < datsiz; i++) {
+				q[esp + i] = p[dathrb + i];
+			}
+			start_app(0x1b, 1003 * 8, esp, 1004 * 8, &(task->tss.esp0));
+            freeMemoryWithAddrAndSize_Page(memman, (int) q, segsiz);
+        }
+        else {
+            consoleWrite(cons, "HRB executable file format error.\n");
+        }
         freeMemoryWithAddrAndSize_Page(memman, (int) p, file->size);
         consoleNewLine(cons);
         return 1;
@@ -276,8 +297,16 @@ int cmdCALL(CONSOLE *cons, int *fat, char *cmd) {
     return 0;
 }
 
-void mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax){
+int *mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax){
+    int DSBase = *((int *) 0xfe8); // Save the data of DS register first.
+    TASK *task = getCurrentTask();
     CONSOLE *cons = (CONSOLE *) *((int *) 0x0fec);
+    SHEET_MANAGER *sheetMan = (SHEET_MANAGER *) *((int *) 0x0fe4);
+    SHEET *sheet;
+    int *reg = &eax + 1;
+        /* reg[0] : EDI,   reg[1] : ESI,   reg[2] : EBP,   reg[3] : ESP */
+		/* reg[4] : EBX,   reg[5] : EDX,   reg[6] : ECX,   reg[7] : EAX */
+
     if (edx == 1) {
         consolePutChar(cons, eax & 0xff, 1); // ASM funcions can set EAX = char and call INT with edx = 1,
         // then MewOS will recognize EAX as a character and show it in the console.
@@ -289,4 +318,46 @@ void mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
     else if (edx == 3) {
         consoleWriteLen(cons, (char *) ebx, ecx);
     }
+    else if (edx == 4) {
+        return &(task->tss.esp0);
+    }
+    else if (edx == 5) {
+        sheet = allocASheetForWindow(sheetMan);
+        setSheetBuffer(sheet, (char *) ebx + DSBase, esi, edi, eax);
+        make_window8((char *) ebx + DSBase, esi, edi, (char *) ecx + DSBase, 0);
+        sheetMove(sheet, 100, 50);
+        setSheetHeight(sheet, 3);
+        reg[7] = (int) sheet;
+    }
+    else if (edx == 6) {
+        sheet = (SHEET *) ebx;
+        putfonts8_asc(sheet->buf, sheet->bxsize, esi, edi, eax, (char *) ebp + DSBase);
+        sheetRefresh(sheet, esi, edi, esi + ecx * 8, edi + 16);
+    }
+    else if (edx == 7) {
+        sheet = (SHEET *) ebx;
+        boxfill8(sheet->buf, sheet->bxsize, ebp, eax, ecx, esi, edi);
+        sheetRefresh(sheet, eax, ecx, esi + 1, edi + 1);
+    }
+    return 0;
+}
+
+int *stackExceptionHandler(int *esp){
+    CONSOLE *cons = (CONSOLE *) *((int *) 0x0fec);
+    TASK *task = getCurrentTask();
+    char s[30];
+    consoleWrite(cons, "\n INT 0C :\n Stack Exception.\n");
+    sprintf(s, "EIP = %08X\n", esp[11]);
+    consoleWrite(cons, s);
+    return &(task->tss.esp0);
+}
+
+int *generalProtectedExceptionHandler(int *esp){
+    CONSOLE *cons = (CONSOLE *) *((int *) 0x0fec);
+    TASK *task  = getCurrentTask();
+    char s[30];
+    consoleWrite(cons, "\nINT 0D :\n General Protected Exception.\n");
+    sprintf(s, "EIP = %08X\n", esp[11]);
+    consoleWrite(cons, s);
+    return &(task->tss.esp0);
 }
