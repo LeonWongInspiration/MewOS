@@ -28,7 +28,7 @@
 #include "include/stdio.h"
 #include "include/string.h"
 
-static const char *version = "MewOS 0.3.0.0";
+static const char *version = "MewOS 0.5.0.0";
 
 /**
  * ENTRY FUNCTION!

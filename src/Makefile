@@ -96,6 +96,9 @@ clean :
 	-$(DEL) C_Entry.map
 	-$(DEL) C_Entry.bim
 	-$(DEL) C_Entry.hrb
+	-$(DEL) winhelo.map
+	-$(DEL) winhelo.bim
+	-$(DEL) winhelo.hrb
 	-$(DEL) MewOS.sys
 
 src_clean :

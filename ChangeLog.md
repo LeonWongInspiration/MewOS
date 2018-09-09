@@ -1,5 +1,24 @@
 # 更新日志 ChangeLog
 
+20180909 23:50 by 王陆洋 Leon Wong
+
+Version: 0.5.0.0
+
+Branch: Console
+
+Contents:
+
+* Support system API of window management.
+* Support ls, cat, mem, etc. commands.
+* Add system protection.
+* Allow third-party apps with compatible MewOS APIs.
+* 加入系统窗口API。
+* 加入ls、cat、mem等内置命令。
+* 加入系统保护，避免第三方应用随意访问内存。
+* 支持运行使用了兼容的MewOS API的第三方APP（详见API.h）
+
+---
+
 20180907 02:20 by 王陆洋 Leon Wong
 
 Version: 0.3.0.0
