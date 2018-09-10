@@ -58,29 +58,18 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char ac
 	make_wtitle8(buf, xsize, title, act);
 }
 
-int keywin_off(struct SHEET *key_win, struct SHEET *sht_win, int cur_c, int cur_x){
+void keywin_off(struct SHEET *key_win){
 	change_wtitle8(key_win, 0);
-	if (key_win == sht_win) {
-		cur_c = -1;
-		boxfill8(sht_win->buf, sht_win->bxsize, COL8_FFFFFF, cur_x, 28, cur_x + 7, 43);
-	} else {
-		if ((key_win->flags & 0x20) != 0) {
-			fifo32_put(&key_win->task->fifo, 3);
-		}
+	if ((key_win->flags & 0x20) != 0) {
+		fifo32_put(&(key_win->task->fifo), 3);
 	}
-	return cur_c;
 }
 
-int keywin_on(struct SHEET *key_win, struct SHEET *sht_win, int cur_c){
+void keywin_on(struct SHEET *key_win){
 	change_wtitle8(key_win, 1);
-	if (key_win == sht_win) {
-		cur_c = COL8_000000;
-	} else {
-		if ((key_win->flags & 0x20) != 0) {
-			fifo32_put(&key_win->task->fifo, 2);
-		}
+	if ((key_win->flags & 0x20) != 0) {
+		fifo32_put(&(key_win->task->fifo), 2);
 	}
-	return cur_c;
 }
 
 void change_wtitle8(struct SHEET *sht, char act){

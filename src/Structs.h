@@ -1,7 +1,7 @@
 /** Structs Definition
  * 
  * @author: Leon Wong
- * @build: 201809070018
+ * @build: 201809102146 FINAL
  * @brief: This file contains all definitions of structs used in this project.
  * @usage: This file should be only included.
  * 
@@ -49,7 +49,7 @@ typedef struct FAT12 FAT12;
 /**
  * @brief: A FIFO Buffer including 8 bit data.
  */ 
-struct FIFOBuffer8{
+struct FIFOBuffer8 {
     unsigned char *buf; /// Buffer
     int nextWrite; /// Index of next available byte to write.
     int nextRead; /// Index of next byte to read.
@@ -64,7 +64,7 @@ typedef struct FIFOBuffer8 FIFO8;
 /**
  * @brief: A FIFO Buffer including 32bit data.
  */ 
-struct FIFOBuffer32{
+struct FIFOBuffer32 {
     int *buf; /// Buffer
     int nextWrite; /// Index of next available byte to write.
     int nextRead; /// Index of next byte to read.
@@ -185,7 +185,7 @@ typedef struct SHEET_MANAGER SHEET_MANAGER;
 #define MAX_TASK 1000 // How many tasks we allow to run simultaneously.
 
 /// Task Status Segment, saving status of a task.
-struct TASK_STAT_SEGM{
+struct TASK_STAT_SEGM {
 	int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3; // Status of task
 	int eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi; // Data of registers (32bit)
     // EIP: Extended Instruction Pointer, i.e. 32 bit Program Counter (PC)
@@ -203,6 +203,9 @@ struct TASK {
     int priority; // then its priority.
     struct FIFOBuffer32 fifo;
     struct TASK_STAT_SEGM tss;
+    struct CONSOLE *cons; // The console this task runs on.
+    int DSBase; // The DS segment register base which will be added to the apps' segments.
+    int consStack; // Stack of the console.
 };
 
 typedef struct TASK TASK;

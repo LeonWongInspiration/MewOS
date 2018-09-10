@@ -1,7 +1,7 @@
 /** MewOS Console Window
  * 
  * @author: Leon Wong
- * @build: 201809081627
+ * @build: 201809102233 FINAL
  * @brief: This file makes a console window which runs commands.
  * @usage: This file should be both included and compiled.
  * 
@@ -22,6 +22,7 @@
 #include "Structs.h"
 #include "Window.h"
 #include "Memorie.h"
+#include "Widgets.h"
 
 #include "include/stdio.h"
 #include "include/string.h"
@@ -102,6 +103,29 @@ void cmdLS(struct CONSOLE *cons);
 void cmdCAT(struct CONSOLE *cons, int *fat, char *cmd);
 
 /**
+ * @brief: Release a console.
+ * @param: (CONSOLE *)cons: The console to release.
+ * @param: (int *)fat: FAT table.
+ */ 
+void cmdExit(struct CONSOLE *cons, int *fat);
+
+/**
+ * @brief: Start an app thread within a console.
+ * @param: (CONSOLE *)cons: The console to run app.
+ * @param: (char *)cmdline: The argument of start cmd.
+ * @param: (int)totalmemory: The size of total memory.
+ */
+void cmdStart(struct CONSOLE *cons, char *cmdline, int totalMemory);
+
+/**
+ * @brief: Start an app without a console.
+ * @param: (CONSOLE *)cons: The cons who runs this cmd.
+ * @param: (char *)cmdline: The argument of call cmd.
+ * @param: (int)totalMemory: The size of total memory.
+ */ 
+void cmdCall(struct CONSOLE *cons, char *cmdline, int totalMemory);
+
+/**
  * @brief: "call" runs a third-party executable file in the console.
  * @param: (CONSOLE *)cons: The console.
  * @param: (int *fat): The fat table.
@@ -141,5 +165,33 @@ int *generalProtectedExceptionHandler(int *esp);
  * @param: (int)col: Color of the line.
  */ 
 void mew_api_linewin(struct SHEET *sht, int x0, int y0, int x1, int y1, int col);
+
+/**
+ * @brief: Set up a task for a new console.
+ * @param: (SHEET *)sht: Sheet assigned for the console.
+ * @param: (uint)totalMemory: Total size of the memory.
+ * @return: (TASK *): TASK created for a new console.
+ */ 
+struct TASK* openConsTask(struct SHEET *sht, unsigned int totalMemory);
+
+/**
+ * @brief: Open a sheet for a console.
+ * @param: (SHEET_MANAGER *)shtMan: The sheet manager.
+ * @param: (uint)totalMemory: Total size of memory.
+ * @return: (SHEET *): Sheet set up for the console.
+ */ 
+struct SHEET *openConsole(struct SHEET_MANAGER *shtMan, unsigned int totalMemory);
+
+/**
+ * @brief: Close a console's task.
+ * @param: (TASK *)task: The task to release.
+ */ 
+void closeConsTask(struct TASK *task);
+
+/**
+ * @brief: Close a console.
+ * @param: (SHEET *)sht: Sheet of the console.
+ */ 
+void closeConsole(struct SHEET *sht);
 
 #endif

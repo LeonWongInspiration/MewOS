@@ -72,7 +72,8 @@ void setSheetHeight(SHEET *sht, int height){
 			sheetManager->sheets[height] = sht;
 			refreshSheetMap(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, height + 1);
 			sheetRefreshSub(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, height + 1, old);
-		} else {
+		}
+		else {
 			if (sheetManager->top > old) {
 				for (h = old; h < sheetManager->top; h++) {
 					sheetManager->sheets[h] = sheetManager->sheets[h + 1];
@@ -83,14 +84,16 @@ void setSheetHeight(SHEET *sht, int height){
 			refreshSheetMap(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0);
 			sheetRefreshSub(sheetManager, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0, old - 1);
 		}
-	} else if (old < height) {
+	}
+	else if (old < height) {
 		if (old >= 0) {
 			for (h = old; h < height; h++) {
 				sheetManager->sheets[h] = sheetManager->sheets[h + 1];
 				sheetManager->sheets[h]->height = h;
 			}
 			sheetManager->sheets[height] = sht;
-		} else {
+		}
+		else {
 			for (h = sheetManager->top; h >= height; h--) {
 				sheetManager->sheets[h + 1] = sheetManager->sheets[h];
 				sheetManager->sheets[h + 1]->height = h + 1;
@@ -110,7 +113,7 @@ void sheetRefresh(SHEET *sht, int bx0, int by0, int bx1, int by1){
 }
 
 void sheetRefreshSub(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight, int maxRefHeight){
-	int h, bx, by, vx, vy, bx0, by0, bx1, by1;
+	int h, bx, by, vx, vy, bx0, by0, bx1, by1, bx2, sid4, i, i1, *p, *q, *r;
 	unsigned char *buf, *vram = sheetManager->vram, *map = sheetManager->map, sid;
 	struct SHEET *sht;
 	if (vx0 < 0) { vx0 = 0; }
@@ -130,12 +133,60 @@ void sheetRefreshSub(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int
 		if (by0 < 0) { by0 = 0; }
 		if (bx1 > sht->bxsize) { bx1 = sht->bxsize; }
 		if (by1 > sht->bysize) { by1 = sht->bysize; }
-		for (by = by0; by < by1; by++) {
-			vy = sht->vy0 + by;
-			for (bx = bx0; bx < bx1; bx++) {
+		if ((sht->vx0 & 3) == 0) {
+			i = (bx0 + 3) / 4;
+			i1 = bx1 / 4;
+			i1 = i1 - i;
+			sid4 = sid | sid << 8 || sid << 16 | sid << 24;
+			for (by = by0; by < by1; ++by) {
+				vy = sht->vy0 + by;
+				for (bx = bx0; bx < bx1 && (bx & 3) != 0; ++bx) {
+					vx = sht->vx0 + bx;
+					if (map[vy * sheetManager->xsize + vx] == sid) {
+						vram[vy * sheetManager->xsize + vx] = buf[by * sht->bxsize + bx];
+					}
+				}
 				vx = sht->vx0 + bx;
-				if (map[vy * sheetManager->xsize + vx] == sid) {
-					vram[vy * sheetManager->xsize + vx] = buf[by * sht->bxsize + bx];
+				p = (int *) &map[vy * sheetManager->xsize + vx];
+				q = (int *) &vram[vy * sheetManager->xsize + vx];
+				r = (int *) &buf[by * sht->bxsize + bx];
+				for (i = 0; i < i1; ++i) {
+					if (p[i] == sid4) {
+						q[i] = r[i];
+					}
+					else {
+						bx2 = bx + i * 4;
+						vx = sht->vx0 + bx2;
+						if (map[vy * sheetManager->xsize + vx + 0] == sid) {
+							vram[vy * sheetManager->xsize + vx + 0] = buf[by * sht->bxsize + bx2 + 0];
+						}
+						if (map[vy * sheetManager->xsize + vx + 1] == sid) {
+							vram[vy * sheetManager->xsize + vx + 1] = buf[by * sht->bxsize + bx2 + 1];
+						}
+						if (map[vy * sheetManager->xsize + vx + 2] == sid) {
+							vram[vy * sheetManager->xsize + vx + 2] = buf[by * sht->bxsize + bx2 + 2];
+						}
+						if (map[vy * sheetManager->xsize + vx + 3] == sid) {
+							vram[vy * sheetManager->xsize + vx + 3] = buf[by * sht->bxsize + bx2 + 3];
+						}
+					}
+				}
+				for (bx += i1 * 4; bx < bx1; bx++) {				/* ���̒[����1�o�C�g���� */
+					vx = sht->vx0 + bx;
+					if (map[vy * sheetManager->xsize + vx] == sid) {
+						vram[vy * sheetManager->xsize + vx] = buf[by * sht->bxsize + bx];
+					}
+				}
+			}
+		}
+		else {
+			for (by = by0; by < by1; by++) {
+				vy = sht->vy0 + by;
+				for (bx = bx0; bx < bx1; bx++) {
+					vx = sht->vx0 + bx;
+					if (map[vy * sheetManager->xsize + vx] == sid) {
+						vram[vy * sheetManager->xsize + vx] = buf[by * sht->bxsize + bx];
+					}
 				}
 			}
 		}
@@ -163,7 +214,7 @@ void sheetDestroy(SHEET *sht){
 }
 
 void refreshSheetMap(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int vy1, int leastRefHeight){
-    int h, bx, by, vx, vy, bx0, by0, bx1, by1;
+    int h, bx, by, vx, vy, bx0, by0, bx1, by1, sid4, *p;
 	unsigned char *buf, sid, *map = sheetManager->map;
 	struct SHEET *sht;
 	if (vx0 < 0) { vx0 = 0; }
@@ -182,12 +233,37 @@ void refreshSheetMap(SHEET_MANAGER *sheetManager, int vx0, int vy0, int vx1, int
 		if (by0 < 0) { by0 = 0; }
 		if (bx1 > sht->bxsize) { bx1 = sht->bxsize; }
 		if (by1 > sht->bysize) { by1 = sht->bysize; }
-		for (by = by0; by < by1; by++) {
-			vy = sht->vy0 + by;
-			for (bx = bx0; bx < bx1; bx++) {
-				vx = sht->vx0 + bx;
-				if (buf[by * sht->bxsize + bx] != sht->colorAndInvisibility) {
-					map[vy * sheetManager->xsize + vx] = sid;
+		if (sht->colorAndInvisibility == -1) {
+			if ((sht->vx0 & 3) == 0 && (bx0 & 3) == 0 && (bx1 & 3) == 0) {
+				bx1 = (bx1 - bx0) / 4;
+				sid4 = sid | sid << 8 | sid << 16 | sid << 24;
+				for (by = by0; by < by1; by++) {
+					vy = sht->vy0 + by;
+					vx = sht->vx0 + bx0;
+					p = (int *) &map[vy * sheetManager->xsize + vx];
+					for (bx = 0; bx < bx1; bx++) {
+						p[bx] = sid4;
+					}
+				}
+			}
+			else {
+				for (by = by0; by < by1; by++) {
+					vy = sht->vy0 + by;
+					for (bx = bx0; bx < bx1; bx++) {
+						vx = sht->vx0 + bx;
+						map[vy * sheetManager->xsize + vx] = sid;
+					}
+				}
+			}
+		}
+		else {
+			for (by = by0; by < by1; by++) {
+				vy = sht->vy0 + by;
+				for (bx = bx0; bx < bx1; bx++) {
+					vx = sht->vx0 + bx;
+					if (buf[by * sht->bxsize + bx] != sht->colorAndInvisibility) {
+						map[vy * sheetManager->xsize + vx] = sid;
+					}
 				}
 			}
 		}

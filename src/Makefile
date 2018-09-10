@@ -60,22 +60,22 @@ C_Entry.bim : $(OBJ_FILES) Makefile
 C_Entry.hrb : C_Entry.bim Makefile
 	$(BIM2HRB) C_Entry.bim C_Entry.hrb 0
 
-winhelo.bim : winhelo.obj API.obj Makefile
-	$(OBJ2BIM) @$(HARIRULE) out:winhelo.bim stack:1k map:winhelo.map \
-	winhelo.obj API.obj
+Color1.bim : Color1.obj API.obj Makefile
+	$(OBJ2BIM) @$(HARIRULE) out:Color1.bim stack:1k map:Color1.map \
+	Color1.obj API.obj
 
-winhelo.hrb : winhelo.bim Makefile
-	$(BIM2HRB) winhelo.bim winhelo.hrb 0
+Color1.hrb : Color1.bim Makefile
+	$(BIM2HRB) Color1.bim Color1.hrb 56k
 
 MewOS.sys : MewOS.bin C_Entry.hrb Makefile
 	$(COPY) /B MewOS.bin+C_Entry.hrb MewOS.sys
 
-MewOS.img : $(IPL_NAME).bin MewOS.sys winhelo.hrb Makefile
+MewOS.img : $(IPL_NAME).bin MewOS.sys Color1.hrb Makefile
 	$(EDIMG) imgin:../tools/fdimg0at.tek \
 	wbinimg src:$(IPL_NAME).bin len:512 from:0 to:0 \
 	copy from:MewOS.sys to:@: \
 	copy from:$(IPL_NAME).nas to:@: \
-	copy from:winhelo.hrb to:@: \
+	copy from:Color1.hrb to:@: \
 	copy from:wallpp.mjp to:@: \
 	imgout:MewOS.img
 

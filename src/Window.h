@@ -1,7 +1,7 @@
 /** Build Windows on Sheets
  * 
  * @author: Leon Wong
- * @build: 201809052358
+ * @build: 201809102322 FINAL
  * @brief: This file provides functions on window management based on Sheet Management.
  * @usage: This file should be both included and compiled.
  * 
@@ -38,21 +38,16 @@ void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
 /**
  * @brief: Manage the window's title color according to mouse.
  * @param: (SHEET *)key_win: The window now receiving keys.
- * @param: (SHEET *)sht_win: CUrrent window.
- * @param: (int)cur_c: COlor of the cursor.
- * @param: (int)cur_x: X position of the cursor.
- * @return: (int)The cursor color according to the mouse.
  */ 
-int keywin_off(struct SHEET *key_win, struct SHEET *sht_win, int cur_c, int cur_x);
+//void keywin_off(struct SHEET *key_win, struct SHEET *sht_win, int cur_c, int cur_x);
+void keywin_off(struct SHEET *key_win);
 
 /**
  * @brief: Set the window's color when clicked.
  * @param: (SHEET *)key_win: The window now receiving keys.
- * @param: (SHEET *)sht_win: The window's sheet.
- * @param: (int)cur_c: The color of the cursor.
- * @return: (int)The cursor's color.
  */
-int keywin_on(struct SHEET *key_win, struct SHEET *sht_win, int cur_c);
+//void keywin_on(struct SHEET *key_win, struct SHEET *sht_win, int cur_c);
+void keywin_on(struct SHEET *key_win);
 
 /**
  * @brief: Change the color of the window's title without considering its string on title.

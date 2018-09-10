@@ -1,7 +1,7 @@
 /** Programmable Interval Timer (PIT) Management
  * 
  * @author: Leon Wong
- * @build: 201809101659
+ * @build: 201809102246 FINAL
  * @brief: This file provides functions about PIT and timer.
  * @usage: This file should be both included and compiled.
  * 

@@ -1,7 +1,7 @@
 /** Keyboard Management
  * 
  * @author: Leon Wong
- * @build: 201809042234
+ * @build: 201809110020 FINAL
  * @brief: This file includes functions on keyboard management
  * @usage: This file should be both included and compiled
  * 
@@ -53,6 +53,7 @@ const static int KEY_SEND_SUCCESS = 0xfa;
 const static int KEY_SEND_FAIL = 0xfe;
 const static int KEY_ENTER = 0x1c;
 const static int KEY_BACKSPACE = 0x0e;
+const static int KEY_F2 = 0x3c;
 const static int KEY_F11 = 0x57;
 
 /**
@@ -84,8 +85,8 @@ void initKeyboard(struct FIFOBuffer32 *fifo, int data0);
 
 /// Keyboard table
 const static char keyboardTable[0x80] = {
-    0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0, 0, 
-    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', 0, 0,
+    0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', 0, 
+    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\n', 0,
     'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`', 0, '\\', 
     'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 0, '*', 0, ' ', 0, 
     // Fn keys starts here. (10 keys)
@@ -98,8 +99,8 @@ const static char keyboardTable[0x80] = {
 };
 
 const static char keyboardTableCapitalized[0x80] = {
-    0, 0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0, 0, 
-    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', 0, 0,
+    0, 0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b', 0, 
+    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', 0,
     'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', 0, '|', 
     'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0, '*', 0, ' ', 0, 
     // Fn keys starts here. (10 keys)
