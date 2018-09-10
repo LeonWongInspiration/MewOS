@@ -4,7 +4,8 @@ INCLUDE_PATH = ../src/include/
 OBJ_FILES = C_Entry.obj asm_funcs.obj MewFont.obj Fonts.obj \
  VisualFuncs.obj Mouse.obj GDT.obj IDT.obj PIC.obj \
  Keyboard.obj FIFOBuffer.obj Memorie.obj Sheet.obj \
- Window.obj Timer.obj Widgets.obj Task.obj
+ Window.obj Timer.obj Widgets.obj Task.obj Console.obj \
+ FAT.obj
 
 MAKE = make -r
 NASK = $(TOOLPATH)nask
@@ -16,6 +17,7 @@ MAKEFONT = $(TOOLPATH)makefont.exe
 OBJ2BIM = $(TOOLPATH)obj2bim
 BIM2HRB = $(TOOLPATH)bim2hrb
 RULEFILE = $(TOOLPATH)mewos.rul
+HARIRULE = $(TOOLPATH)harirul.rul
 IPL_NAME = ipl10
 COPY = copy
 DEL = del
@@ -58,13 +60,23 @@ C_Entry.bim : $(OBJ_FILES) Makefile
 C_Entry.hrb : C_Entry.bim Makefile
 	$(BIM2HRB) C_Entry.bim C_Entry.hrb 0
 
+Color1.bim : Color1.obj API.obj Makefile
+	$(OBJ2BIM) @$(HARIRULE) out:Color1.bim stack:1k map:Color1.map \
+	Color1.obj API.obj
+
+Color1.hrb : Color1.bim Makefile
+	$(BIM2HRB) Color1.bim Color1.hrb 56k
+
 MewOS.sys : MewOS.bin C_Entry.hrb Makefile
 	$(COPY) /B MewOS.bin+C_Entry.hrb MewOS.sys
 
-MewOS.img : $(IPL_NAME).bin MewOS.sys Makefile
+MewOS.img : $(IPL_NAME).bin MewOS.sys Color1.hrb Makefile
 	$(EDIMG) imgin:../tools/fdimg0at.tek \
 	wbinimg src:$(IPL_NAME).bin len:512 from:0 to:0 \
 	copy from:MewOS.sys to:@: \
+	copy from:$(IPL_NAME).nas to:@: \
+	copy from:Color1.hrb to:@: \
+	copy from:wallpp.mjp to:@: \
 	imgout:MewOS.img
 
 img :
@@ -85,6 +97,9 @@ clean :
 	-$(DEL) C_Entry.map
 	-$(DEL) C_Entry.bim
 	-$(DEL) C_Entry.hrb
+	-$(DEL) winhelo.map
+	-$(DEL) winhelo.bim
+	-$(DEL) winhelo.hrb
 	-$(DEL) MewOS.sys
 
 src_clean :

@@ -7,24 +7,14 @@
  * 
  */
 
-#if (!defined(IDT_H))
+#ifndef IDT_H
 #define IDT_H 1
 
 #include "asm_funcs.h"
+#include "Structs.h"
 
 /// Access Right for IDT, which means Allow Interrupts
 const static int AR_INTGATE32 = 0x008e;
-
-/**
- * 8 byte IDT info.
- */ 
-typedef struct GATE_DESCRIPTOR {
-	short offset_low;
-    short selector;
-	char dw_count;
-    char access_right;
-	short offset_high;
-} GATE_DESCRIPTOR;
 
 /// IDT Address got from asm files.
 const static void* IDTAddress = (void *) 0x0026f800;
@@ -37,7 +27,11 @@ void initIDT();
 
 /**
  * @brief: Set IDT.
+ * @param: (GATE_DESCRIPTOR *)gd: The gate descriptor to register.
+ * @param: (int)offset: Offset in the GD table.
+ * @param: (int)selector: = Segment: difine what to run.
+ * @param: (int)ar: Access right.
  */ 
-void setIDT(GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
+void setIDT(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
 
 #endif

@@ -33,7 +33,7 @@ TASK *initTask(MEMORY_FREE_TABLE *memman){
 
     idle = allocTask();
     idle->tss.esp = allocMemoryForSize_Page(memman, 64 * 1024) + 64 * 1024;
-	idle->tss.eip = (int) &systemIdel;
+	idle->tss.eip = (int) &systemIdle;
 	idle->tss.es = 1 * 8;
 	idle->tss.cs = 2 * 8;
 	idle->tss.ss = 1 * 8;
@@ -50,7 +50,7 @@ TASK *allocTask(){
     TASK *task;
     for (i = 0; i < MAX_TASK; ++i) {
         if (taskManager->tasks[i].flags == TASK_FREE) {
-            task = taskManager->tasks + i;
+            task = &(taskManager->tasks[i]);
             task->flags = TASK_ASSIGNED;
             task->tss.eflags = 0x00000202; // IF = 1
             task->tss.eax = 0;
@@ -66,6 +66,7 @@ TASK *allocTask(){
 			task->tss.gs = 0;
 			task->tss.ldtr = 0;
 			task->tss.iomap = 0x40000000;
+            task->tss.ss0 = 0;
             return task;
         }
     }
@@ -94,7 +95,7 @@ void runTask(TASK *task, int level, int priority){
 }
 
 void switchTask(){
-    TASK_LEVEL *tl = taskManager->level + taskManager->currentLevel;
+    TASK_LEVEL *tl = &(taskManager->level[taskManager->currentLevel]);
     TASK *newTask;
     TASK *currentTask = tl->tasks[tl->now];
     ++(tl->now);
@@ -103,7 +104,7 @@ void switchTask(){
     }
     if (taskManager->levelChange != 0) { // We need to check if the level should be changed.
         switchTaskSub();
-        tl = taskManager->level + taskManager->currentLevel;
+        tl = &(taskManager->level[taskManager->currentLevel]);
     }
     newTask = tl->tasks[tl->now];
     timerSetTimeOut(taskTimer, newTask->priority);
@@ -130,21 +131,22 @@ void setTaskSleep(TASK *task){
         // If the task to sleep is now running.
         currentTask = getCurrentTask();
         removeTask(task); // The flag of this task will be TASK_ASSIGNED.
-    }
-    if (task == currentTask) {
-        // If we let current task sleep, we have to switch task.
-        switchTaskSub();
-        currentTask = getCurrentTask();
-        farjmp(0, currentTask->selector);
+        if (task == currentTask) {
+            // If we let current task sleep, we have to switch task.
+            switchTaskSub();
+            currentTask = getCurrentTask();
+            farjmp(0, currentTask->selector);
+        }
     }
 }
 
 TASK *getCurrentTask(){
-    return taskManager->level[taskManager->currentLevel].tasks[taskManager->level[taskManager->currentLevel].now];
+    TASK_LEVEL *tl = &(taskManager->level[taskManager->currentLevel]);
+    return tl->tasks[tl->now];
 }
 
 void addTask(TASK *task){
-    TASK_LEVEL *tl = taskManager->level + task->level;
+    TASK_LEVEL *tl = &(taskManager->level[task->level]);
     tl->tasks[tl->running] = task;
     ++(tl->running);
     task->flags = TASK_RUNNING;
@@ -152,7 +154,7 @@ void addTask(TASK *task){
 
 void removeTask(TASK *task){
     int i;
-    TASK_LEVEL *tl = taskManager->level + task->level;
+    TASK_LEVEL *tl = &(taskManager->level[task->level]);
 
     // Find the index of the task to remove.
     for (i = 0; i < tl->running; ++i) {

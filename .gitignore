@@ -16,3 +16,4 @@ src/*.nas
 !src/asm_funcs.nas
 !src/ipl10.nas
 !src/MewOS.nas
+!src/API.nas

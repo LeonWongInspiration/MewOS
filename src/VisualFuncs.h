@@ -1,16 +1,19 @@
 /** Functions to Modify UI
  * 
  * @author: Leon Wong
- * @build: 201808260151
+ * @build: 201809110019 FINAL
  * @brief: This file includes some functions which can change the data in the VRAM, thus change what shows on the screen.
  * @usage: This file should be both included and compiled.
  * 
  */ 
 
-#if (!defined(VISUAL_FUNCS_H))
+#ifndef VISUAL_FUNCS_H
 #define VISUAL_FUNCS_H 1
 
 #include "asm_funcs.h"
+#include "Memorie.h"
+#include "Structs.h"
+#include "FAT.h"
 
 /**
  * @brief: Init the palette which includes 16 colors we use.

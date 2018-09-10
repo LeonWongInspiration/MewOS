@@ -18,6 +18,14 @@ void initPIC(){
 	io_out8(PIC1_IMR, 0xff);
 }
 
+int *inthandler0c(int *esp){
+	stackExceptionHandler(esp);
+}
+
+int *inthandler0d(int *esp){
+	generalProtectedExceptionHandler(esp);
+}
+
 void inthandler20(int *esp){
 	timerInterruptHandler(esp);
 }

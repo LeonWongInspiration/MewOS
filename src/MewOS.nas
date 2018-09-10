@@ -3,7 +3,8 @@
 
 [INSTRSET "i486p"]
 
-VBEMODE	EQU		0x107			; VESA BIOS Ext (VBE) video mode setting
+VBEMODE	EQU		0x101			; VESA BIOS Ext (VBE) video mode setting
+;	0x100: 640*400*8bit
 ;	0x101: 640*480*8bit
 ;	0x103: 800*600*8bit
 ;	0x105: 1024*768*8bit

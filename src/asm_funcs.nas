@@ -23,6 +23,8 @@
 		GLOBAL	_io_store_eflags
 		GLOBAL	_load_gdtr
 		GLOBAL	_load_idtr
+		GLOBAL	_asm_inthandler0c
+		GLOBAL	_asm_inthandler0d
 		GLOBAL	_asm_inthandler20
 		GLOBAL	_asm_inthandler21
 		GLOBAL	_asm_inthandler27
@@ -32,11 +34,18 @@
 		GLOBAL	_memtest_sub
 		GLOBAL	_load_tr
 		GLOBAL	_farjmp
+		GLOBAL	_farcall
+		GLOBAL	_asm_mew_api
+		GLOBAL	_start_app
+		GLOBAL	_asm_kill_app
 
-		EXTERN	_inthandler20 	; Functions from C
+		EXTERN	_inthandler0c 	; Functions from C
+		EXTERN	_inthandler0d
+		EXTERN	_inthandler20
 		EXTERN	_inthandler21
 		EXTERN	_inthandler27
 		EXTERN	_inthandler2c
+		EXTERN	_mew_api
 
 ; Function realization
 
@@ -116,6 +125,46 @@ _load_idtr:		; void load_idtr(int limit, int addr);
 		MOV		[ESP+6],AX
 		LIDT	[ESP+6]
 		RET
+
+_asm_inthandler0c:
+		STI
+		PUSH	ES
+		PUSH	DS
+		PUSHAD
+		MOV		EAX,ESP
+		PUSH	EAX
+		MOV		AX,SS
+		MOV		DS,AX
+		MOV		ES,AX
+		CALL	_inthandler0c
+		CMP		EAX,0
+		JNE		_asm_kill_app
+		POP		EAX
+		POPAD
+		POP		DS
+		POP		ES
+		ADD		ESP,4
+		IRETD
+
+_asm_inthandler0d:
+		STI
+		PUSH	ES
+		PUSH	DS
+		PUSHAD
+		MOV		EAX,ESP
+		PUSH	EAX
+		MOV		AX,SS
+		MOV		DS,AX
+		MOV		ES,AX
+		CALL	_inthandler0d
+		CMP		EAX,0
+		JNE		_asm_kill_app
+		POP		EAX
+		POPAD
+		POP		DS
+		POP		ES
+		ADD		ESP,4
+		IRETD
 	
 _asm_inthandler20:
 		PUSH	ES
@@ -230,3 +279,51 @@ _load_tr:		; void load_tr(int tr);
 _farjmp:		; void farjmp(int eip, int cs);
 		JMP		FAR	[ESP+4]				; eip, cs
 		RET
+
+_farcall:		; void farcall(int eip, int cs);
+		CALL	FAR	[ESP+4]				; eip, cs
+		RET
+
+_asm_mew_api:	; MewOS API call, allow third-party binaries to call functions provided by MewOS
+		STI
+		PUSH	DS
+		PUSH	ES
+		PUSHAD	; Save the data of registers.
+		PUSHAD	; Prepare params to call _mew_api
+		MOV		AX,SS
+		MOV		DS,AX
+		MOV		ES,AX
+		CALL	_mew_api
+		CMP		EAX,0					; Judge if we need to kill the app.
+		JNE		_asm_kill_app
+		ADD		ESP,32
+		POPAD
+		POP		ES
+		POP		DS
+		IRETD
+_asm_kill_app:
+		MOV		ESP,[EAX]
+		MOV		DWORD [EAX+4],0
+		POPAD
+		RET
+
+_start_app:		; void start_app(int eip, int cs, int esp, int ds, int *tss_esp0);
+		PUSHAD
+		MOV		EAX,[ESP+36]
+		MOV		ECX,[ESP+40]
+		MOV		EDX,[ESP+44]
+		MOV		EBX,[ESP+48]
+		MOV		EBP,[ESP+52]
+		MOV		[EBP],ESP
+		MOV		[EBP+4],SS
+		MOV		ES,BX
+		MOV		DS,BX
+		MOV		FS,BX
+		MOV		GS,BX
+		OR		ECX,3
+		OR		EBX,3
+		PUSH	EBX
+		PUSH	EDX
+		PUSH	ECX
+		PUSH	EAX
+		RETF
