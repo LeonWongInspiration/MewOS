@@ -60,11 +60,13 @@ void MewOSMain(){
 	unsigned char *bufferWindow;
 	unsigned char *bufferConsole;
 	TASK *taskA, *taskConsole;
-	int keyTo = 0;
 	int keyShift = 0;
 	int keyLed = (binfo->leds >> 4) & 7;
 	int keycmdWait = -1;
 	CONSOLE *cons;
+	int j, x, y;
+	int mmx = -1, mmy = -1; // Mouse Move positions.
+	SHEET *sht, *key_win; // The window now receiving keys.
 
 	// ------ Do system init ------ //
 	initGDT();
@@ -150,6 +152,10 @@ void MewOSMain(){
 	setSheetHeight(sheetWindow, 2);
 	setSheetHeight(sheetMouse, 3);
 
+	key_win = sheetWindow;
+	sheetConsole->task = taskConsole;
+	sheetConsole->flags |= 0x20; // 0x20 flag means the window is created by system.
+
 	// sprintf(s, "(%3d, %3d)", mx, my);
 	// putStringOnSheet(sheetBackground, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
 	// sprintf(s, "memory %dMB   free : %dKB",
@@ -182,6 +188,10 @@ void MewOSMain(){
 		else {
 			fifo32_get(&fifo, &i);
 			io_sti();
+			if (key_win->flags == 0) {
+				key_win = sheetManager->sheets[sheetManager->top - 1];
+				cursorColor = keywin_on(key_win, sheetWindow, cursorColor);
+			}
 			if (i >= keydata0 && i < mousedata0) {
 				// sprintf(s, "%02X", i - keydata0);
 				// putStringOnSheet(sheetBackground, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
@@ -208,7 +218,7 @@ void MewOSMain(){
 				}
 				if (s[0] != 0) {
 					// If the key is characters or symbols.
-					if (keyTo == 0) {
+					if (key_win == sheetWindow) {
 						// Send the key to taskA.
 						if (cursorX < 128) {
 							// Show a character and move the cursor.
@@ -223,7 +233,7 @@ void MewOSMain(){
 				}
 				// ------ Now deal with function keys ------ //
 				if (i == keydata0 + KEY_BACKSPACE) {
-					if (keyTo == 0) {
+					if (key_win == sheetWindow) {
 						if (cursorX > 8) {
 							putStringOnSheet(sheetWindow, cursorX, 28, COL8_000000, COL8_FFFFFF, " ", 1);
 							cursorX -= 8;
@@ -234,28 +244,18 @@ void MewOSMain(){
 					}
 				}
 				if (i == keydata0 + KEY_ENTER) {
-					if (keyTo != 0) {
+					if (key_win != sheetWindow) {
 						fifo32_put(&(taskConsole->fifo), keydata0 + (int)'\n');
 					}
 				}
 				if (i == keydata0 + KEY_TAB) {
-					if (keyTo == 0) {
-						keyTo = 1; // Change front window
-						make_wtitle8(bufferWindow, sheetWindow->bxsize, "some task", 0);
-						make_wtitle8(bufferConsole, sheetConsole->bxsize, "Console", 1);
-						cursorColor = -1;
-						boxfill8(sheetWindow->buf, sheetWindow->bxsize, COL8_FFFFFF, cursorX, 28, cursorX + 7, 43);
-						fifo32_put(&(taskConsole->fifo), 2); // Call console to allow cursor.
+					cursorColor = keywin_off(key_win, sheetWindow, cursorColor, cursorX);
+					j = key_win->height - 1;
+					if (j == 0) {
+						j = sheetManager->top - 1;
 					}
-					else {
-						keyTo = 0;
-						make_wtitle8(bufferWindow, sheetWindow->bxsize, "some task", 1);
-						make_wtitle8(bufferConsole, sheetConsole->bxsize, "Console", 0);
-						cursorColor = COL8_000000;
-						fifo32_put(&(taskConsole->fifo), 3); // Call console to disallow cursor.
-					}
-					sheetRefresh(sheetWindow, 0, 0, sheetWindow->bxsize, 21);
-					sheetRefresh(sheetConsole, 0, 0, sheetConsole->bxsize, 21);
+					key_win = sheetManager->sheets[j];
+					cursorColor = keywin_on(key_win, sheetWindow, cursorColor);
 				}
 				if (i == keydata0 + KEY_LEFT_SHIFT) {
 					keyShift |= 1;
@@ -284,13 +284,16 @@ void MewOSMain(){
 					fifo32_put(&keycmd, KEYBOARD_CMD_LED);
 					fifo32_put(&keycmd, keyLed);
 				}
-				if (i == 256 + 0x3b && keyShift != 0 && taskConsole->tss.ss0 != 0) {
+				if (i == 256 + KEY_ENTER && keyShift != 0 && taskConsole->tss.ss0 != 0) {
 					cons = (CONSOLE *) *((int *) 0x0fec);
 					consoleWrite(cons, "\nSignal (Kill task)\n");
 					io_cli();
 					taskConsole->tss.eax = (int) &(taskConsole->tss.esp0);
 					taskConsole->tss.eip = (int) asm_kill_app;
 					io_sti();
+				}
+				if (i == keydata0 + KEY_F11 && sheetManager->top > 2) {
+					setSheetHeight(sheetManager->sheets[1], sheetManager->top - 1);
 				}
 				if (i == keydata0 + KEY_SEND_SUCCESS) {
 					keycmdWait = -1;
@@ -337,7 +340,48 @@ void MewOSMain(){
 					// putStringOnSheet(sheetBackground, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
 					sheetMove(sheetMouse, mx, my);
 					if ((mdec.btn & 0x01) != 0) {
-						sheetMove(sheetWindow, mx - 80, my - 8);
+						if (mmx < 0) {
+							for (j = sheetManager->top - 1; j > 0; --j) {
+								sht = sheetManager->sheets[j];
+								x = mx - sht->vx0;
+								y = my - sht->vy0;
+								if (x >= 0 && x < sht->bxsize && y >= 0 && y < sht->bxsize) {
+									if (sht->buf[y * sht->bxsize + x] != sht->colorAndInvisibility) {
+										setSheetHeight(sht, sheetManager->top - 1);
+										if (sht != key_win) {
+											cursorColor = keywin_off(key_win, sheetWindow, cursorColor, cursorX);
+											key_win = sht;
+											cursorColor = keywin_on(key_win, sheetWindow, cursorColor);
+										}
+										if (x >= 3 && x < sht->bxsize - 3 && y >= 3 && y < 21) {
+											mmx = mx; // Now mmx mmy are not 0, let's move the windows.
+											mmy = my;
+										}
+										if (x >= sht->bxsize - 21 && x < sht->bxsize - 5 && y >= 5 && y < 19) {
+											if ((sht->flags & 0x10) != 0){
+												cons = (CONSOLE *) *((int *) 0x0fec);
+												consoleWrite(cons, "\nSignal: Break.\n");
+												io_cli();
+												taskConsole->tss.eax = (int) &(taskConsole->tss.esp0);
+												taskConsole->tss.eip = (int) asm_kill_app;
+												io_sti();
+											}
+										}
+										break;
+									}
+								}
+							}
+						}
+						else {
+							x = mx - mmx;
+							y = my - mmy;
+							sheetMove(sht, sht->vx0 + x, sht->vy0 + y);
+							mmx = mx;
+							mmy = my;
+						}
+					}
+					else {
+						mmx = -1; // Do not use Mouse move mode.
 					}
 				}
 			}

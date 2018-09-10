@@ -234,7 +234,8 @@ typedef struct TASK_MANAGER TASK_MANAGER;
 struct TIMER {
     struct TIMER *next; // Pointer for "linked list".
     unsigned int timeout; // Total time out for this timer.
-    unsigned int flags;
+    char flags;
+    char ownerStat;
     struct FIFOBuffer32 *fifo;
     int data;
 };

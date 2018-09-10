@@ -246,6 +246,8 @@ int cmdCALL(CONSOLE *cons, int *fat, char *cmd) {
     char *q;
     TASK *task = getCurrentTask();
     int i, segsiz, datsiz, esp, dathrb;
+    SHEET_MANAGER *sheetMan;
+    SHEET *sht;
 
     // Handle the name of the file.
     for (i = 0; i < 13; ++i) {
@@ -285,6 +287,13 @@ int cmdCALL(CONSOLE *cons, int *fat, char *cmd) {
 				q[esp + i] = p[dathrb + i];
 			}
 			start_app(0x1b, 1003 * 8, esp, 1004 * 8, &(task->tss.esp0));
+            sheetMan = (SHEET_MANAGER *) *((int *) 0xfe4);
+            for (i = 0; i < MAX_SHEETS; ++i) {
+                sht = &(sheetMan->sheets0[i]);
+                if (sht->flags != SHEET_FREE && sht->task == task) {
+                    sheetDestroy(sht);
+                }
+            }
             freeMemoryWithAddrAndSize_Page(memman, (int) q, segsiz);
         }
         else {
@@ -325,6 +334,7 @@ int *mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
     else if (edx == 5) {
         sheet = allocASheetForWindow(sheetMan);
         sheet->task = task;
+        sheet->flags |= 0x10; // Flag when window should be created by apps
         setSheetBuffer(sheet, (char *) ebx + DSBase, esi, edi, eax);
         make_window8((char *) ebx + DSBase, esi, edi, (char *) ecx + DSBase, 0);
         sheetMove(sheet, 100, 50);
@@ -404,11 +414,24 @@ int *mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
             if (i == 3) {
                 cons->curColor = -1;
             }
-            if (i >= keydata0 && i < mousedata0) {
+            if (i >= keydata0) {
                 reg[7] = i - keydata0;
                 return 0;
             }
         }
+    }
+    else if (edx == 16) {
+        reg[7] = (int) allocTimer();
+        ((TIMER *) reg[7])->ownerStat = APPTIMER;
+    }
+    else if (edx == 17) {
+        initTimer((TIMER *) ebx, &task->fifo, eax + keydata0);
+    }
+    else if (edx == 18) {
+        timerSetTimeOut((TIMER *) ebx, eax);
+    }
+    else if (edx == 19) {
+        freeTimer((TIMER *) ebx);
     }
     return 0;
 }

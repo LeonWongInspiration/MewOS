@@ -1,7 +1,7 @@
 /** Programmable Interval Timer (PIT) Management
  * 
  * @author: Leon Wong
- * @build: 201809070218
+ * @build: 201809101659
  * @brief: This file provides functions about PIT and timer.
  * @usage: This file should be both included and compiled.
  * 
@@ -18,9 +18,12 @@
 #include "include\stdio.h"
 
 // Flags definition for timers
-const static unsigned int TIMER_FREE = 0;
-const static unsigned int TIMER_ALLOCED = 1;
-const static unsigned int TIMER_USING = 2;
+const static char TIMER_FREE = 0;
+const static char TIMER_ALLOCED = 1;
+const static char TIMER_USING = 2;
+
+const static char SYSTIMER = 0;
+const static char APPTIMER = 1;
 
 /// Port help to control PIT
 const static int PIT_CTRL = 0x0043;
@@ -69,6 +72,20 @@ void timerSetTimeOut(struct TIMER *timer, unsigned int timeout);
  * @seealso: inthandler20
  */ 
 void timerInterruptHandler(int *esp);
+
+/**
+ * @brief: Cancel a timer when it is counting.
+ * @param: (TIMER *)timer: The timer to cancel.
+ * @return: (int) 1 if succeed, 0 otherwise.
+ */ 
+int cancelTimer(struct TIMER *timer);
+
+/**
+ * @brief: Cancel all timers.
+ * @param: (FIFO32 *)fifo: Cancel the timers using the same buffer.
+ * @warning: This will ONLY cancel timers with ownerStat = APPTIMER!
+ */ 
+void cancelAllTimers(struct FIFOBuffer32* fifo);
 
 extern struct TIMER_MANAGER timerManager;
 

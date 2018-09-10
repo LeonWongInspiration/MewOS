@@ -118,3 +118,29 @@ void api_closewin(int win);
  * @return: (int): The key.
  */ 
 int api_getkey(int mode);
+
+/**
+ * @brief: Assign a timer for apps.
+ * @return: (int)Address of the timer.
+ */ 
+int api_alloctimer();
+
+/**
+ * @brief: Init a timer.
+ * @param: (int)timer: The address of the timer.
+ * @param: (int)data: The data of the timer.
+ */ 
+void api_inittimer(int timer, int data);
+
+/**
+ * @brief: Set timeout for a timer.
+ * @param: (int)timer: Address of the timer.
+ * @param: (int)time: Timeout of the timer.
+ */ 
+void api_settimer(int timer, int time);
+
+/**
+ * @brief: Release a timer.
+ * @param: (int)timer: Address of the timer.
+ */ 
+void api_freetimer(int timer);

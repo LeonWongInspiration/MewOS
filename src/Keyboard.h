@@ -53,6 +53,7 @@ const static int KEY_SEND_SUCCESS = 0xfa;
 const static int KEY_SEND_FAIL = 0xfe;
 const static int KEY_ENTER = 0x1c;
 const static int KEY_BACKSPACE = 0x0e;
+const static int KEY_F11 = 0x57;
 
 /**
  * @brief: Handle interrupts from keyboard.

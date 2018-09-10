@@ -13,6 +13,7 @@
 #include "Sheet.h"
 #include "VisualFuncs.h"
 #include "Fonts.h"
+#include "FIFOBuffer.h"
 
 /**
  * @brief: Make a window with a sheet buffer and other info.
@@ -33,5 +34,31 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char ac
  * @param: (char)act: Whether this window is in the front. (i.e. currently running)
  */ 
 void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
+
+/**
+ * @brief: Manage the window's title color according to mouse.
+ * @param: (SHEET *)key_win: The window now receiving keys.
+ * @param: (SHEET *)sht_win: CUrrent window.
+ * @param: (int)cur_c: COlor of the cursor.
+ * @param: (int)cur_x: X position of the cursor.
+ * @return: (int)The cursor color according to the mouse.
+ */ 
+int keywin_off(struct SHEET *key_win, struct SHEET *sht_win, int cur_c, int cur_x);
+
+/**
+ * @brief: Set the window's color when clicked.
+ * @param: (SHEET *)key_win: The window now receiving keys.
+ * @param: (SHEET *)sht_win: The window's sheet.
+ * @param: (int)cur_c: The color of the cursor.
+ * @return: (int)The cursor's color.
+ */
+int keywin_on(struct SHEET *key_win, struct SHEET *sht_win, int cur_c);
+
+/**
+ * @brief: Change the color of the window's title without considering its string on title.
+ * @param: (SHEET *)sht: The sheet to change color.
+ * @param: (char)act: Whether the window is active.
+ */
+void change_wtitle8(struct SHEET *sht, char act); 
 
 #endif
