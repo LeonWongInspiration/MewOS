@@ -21,6 +21,7 @@
 #include "FAT.h"
 #include "Structs.h"
 #include "Window.h"
+#include "Memorie.h"
 
 #include "include/stdio.h"
 #include "include/string.h"
@@ -129,5 +130,16 @@ int *stackExceptionHandler(int *esp);
  * @return: (int *)The esp of the task.
  */ 
 int *generalProtectedExceptionHandler(int *esp);
+
+/**
+ * @brief: Draw a line on the window.
+ * @param: (SHEEt *)SHT: The sheet to draw a line on.
+ * @param: (int)x0: X0 position of the line.
+ * @param: (int)y0: Y0 position of the line.
+ * @param: (int)x1: X1 position of the line.
+ * @param: (int)y1: Y1 position of the line.
+ * @param: (int)col: Color of the line.
+ */ 
+void mew_api_linewin(struct SHEET *sht, int x0, int y0, int x1, int y1, int col);
 
 #endif

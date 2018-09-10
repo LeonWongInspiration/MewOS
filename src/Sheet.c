@@ -35,6 +35,7 @@ SHEET *allocASheetForWindow(SHEET_MANAGER *sheetManager){
             sheet = sheetManager->sheets0 + i;
             sheet->flags = SHEET_IN_USE;
             sheet->height = -1;
+			sheet->task = NULL; // In default we do not add a task for the sheet.
             return sheet; // Succeed in making a new sheet.
         }
     }

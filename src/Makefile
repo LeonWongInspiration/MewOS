@@ -76,6 +76,7 @@ MewOS.img : $(IPL_NAME).bin MewOS.sys winhelo.hrb Makefile
 	copy from:MewOS.sys to:@: \
 	copy from:$(IPL_NAME).nas to:@: \
 	copy from:winhelo.hrb to:@: \
+	copy from:wallpp.mjp to:@: \
 	imgout:MewOS.img
 
 img :

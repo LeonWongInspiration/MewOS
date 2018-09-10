@@ -306,6 +306,7 @@ int *mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
     int *reg = &eax + 1;
         /* reg[0] : EDI,   reg[1] : ESI,   reg[2] : EBP,   reg[3] : ESP */
 		/* reg[4] : EBX,   reg[5] : EDX,   reg[6] : ECX,   reg[7] : EAX */
+    int i;
 
     if (edx == 1) {
         consolePutChar(cons, eax & 0xff, 1); // ASM funcions can set EAX = char and call INT with edx = 1,
@@ -323,6 +324,7 @@ int *mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
     }
     else if (edx == 5) {
         sheet = allocASheetForWindow(sheetMan);
+        sheet->task = task;
         setSheetBuffer(sheet, (char *) ebx + DSBase, esi, edi, eax);
         make_window8((char *) ebx + DSBase, esi, edi, (char *) ecx + DSBase, 0);
         sheetMove(sheet, 100, 50);
@@ -330,14 +332,83 @@ int *mew_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
         reg[7] = (int) sheet;
     }
     else if (edx == 6) {
-        sheet = (SHEET *) ebx;
+        sheet = (SHEET *) (ebx & 0xfffffffe);
         putfonts8_asc(sheet->buf, sheet->bxsize, esi, edi, eax, (char *) ebp + DSBase);
-        sheetRefresh(sheet, esi, edi, esi + ecx * 8, edi + 16);
+        if ((ebx & 1) == 0){
+            sheetRefresh(sheet, esi, edi, esi + ecx * 8, edi + 16);
+        }
     }
     else if (edx == 7) {
         sheet = (SHEET *) ebx;
         boxfill8(sheet->buf, sheet->bxsize, ebp, eax, ecx, esi, edi);
-        sheetRefresh(sheet, eax, ecx, esi + 1, edi + 1);
+        if ((ebx & 1) == 0){
+            sheetRefresh(sheet, eax, ecx, esi + 1, edi + 1);
+        }
+    }
+    else if (edx == 8) {
+        memoryFreeTableInit((MEMORY_FREE_TABLE *) (ebx + DSBase));
+        ecx &= 0xfffffff0;
+        freeMemoryWithAddrAndSize((MEMORY_FREE_TABLE *) (ebx + DSBase), eax, ecx);
+    }
+    else if (edx == 9) {
+        ecx = (ecx + 0x0f) & 0xfffffff0;
+        reg[7] = allocMemoryForSize((MEMORY_FREE_TABLE *)(ebx + DSBase), ecx);
+    }
+    else if (edx == 10) {
+        ecx = (ecx + 0x0f) & 0xfffffff0;
+        freeMemoryWithAddrAndSize((MEMORY_FREE_TABLE *) (ebx + DSBase), eax, ecx);
+    }
+    else if (edx == 11) {
+        sheet = (SHEET *) (ebx & 0xfffffffe);
+        sheet->buf[sheet->bxsize * edi + esi] = eax;
+        if ((ebx & 1) == 0) {
+            sheetRefresh(sheet, esi, edi, esi + 1, edi + 1);
+        }
+    }
+    else if (edx == 12) {
+        sheet = (SHEET *)ebx;
+        sheetRefresh(sheet, eax, ecx, esi, edi);
+    }
+    else if (edx == 13) {
+        sheet = (SHEET *) (ebx & 0xfffffffe);
+        mew_api_linewin(sheet, eax, ecx, esi, edi, ebp);
+        if ((ebx & 1) == 0) {
+            sheetRefresh(sheet, eax, ecx, esi + 1, edi + 1);
+        }
+    }
+    else if (edx == 14) {
+        sheetDestroy((SHEET *) ebx);
+    }
+    else if (edx == 15) {
+        while (1){
+            io_cli();
+            if (fifo32_status(&task->fifo) == 0) {
+                if (eax != 0) {
+                    setTaskSleep(task);
+                }
+                else {
+                    io_sti();
+                    reg[7] = -1;
+                    return 0;
+                }
+            }
+            fifo32_get(&task->fifo, &i);
+            io_sti();
+            if (i <= 1) {
+                initTimer(cons->timer, &task->fifo, 1);
+                timerSetTimeOut(cons->timer, 50);
+            }
+            if (i == 2) {
+                cons->curColor = COL8_FFFFFF;
+            }
+            if (i == 3) {
+                cons->curColor = -1;
+            }
+            if (i >= keydata0 && i < mousedata0) {
+                reg[7] = i - keydata0;
+                return 0;
+            }
+        }
     }
     return 0;
 }
@@ -360,4 +431,50 @@ int *generalProtectedExceptionHandler(int *esp){
     sprintf(s, "EIP = %08X\n", esp[11]);
     consoleWrite(cons, s);
     return &(task->tss.esp0);
+}
+
+void mew_api_linewin(SHEET *sht, int x0, int y0, int x1, int y1, int col) {
+    int i, x, y, len, dx, dy;
+
+	dx = x1 - x0;
+	dy = y1 - y0;
+	x = x0 << 10;
+	y = y0 << 10;
+	if (dx < 0) {
+		dx = - dx;
+	}
+	if (dy < 0) {
+		dy = - dy;
+	}
+	if (dx >= dy) {
+		len = dx + 1;
+		if (x0 > x1) {
+			dx = -1024;
+		} else {
+			dx =  1024;
+		}
+		if (y0 <= y1) {
+			dy = ((y1 - y0 + 1) << 10) / len;
+		} else {
+			dy = ((y1 - y0 - 1) << 10) / len;
+		}
+	} else {
+		len = dy + 1;
+		if (y0 > y1) {
+			dy = -1024;
+		} else {
+			dy =  1024;
+		}
+		if (x0 <= x1) {
+			dx = ((x1 - x0 + 1) << 10) / len;
+		} else {
+			dx = ((x1 - x0 - 1) << 10) / len;
+		}
+	}
+
+	for (i = 0; i < len; i++) {
+		sht->buf[(y >> 10) * sht->bxsize + (x >> 10)] = col;
+		x += dx;
+		y += dy;
+	}
 }

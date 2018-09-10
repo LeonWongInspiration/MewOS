@@ -11,6 +11,9 @@
 #define VISUAL_FUNCS_H 1
 
 #include "asm_funcs.h"
+#include "Memorie.h"
+#include "Structs.h"
+#include "FAT.h"
 
 /**
  * @brief: Init the palette which includes 16 colors we use.

@@ -27,6 +27,7 @@ typedef struct BootInfo BootInfo;
 struct CONSOLE {
     struct SHEET *sheet;
     int curX, curY, curColor;
+    struct TIMER *timer;
 };
 
 typedef struct CONSOLE CONSOLE;
@@ -159,6 +160,7 @@ struct SHEET {
     int height; // The order of the sheet from top to bottom.
     int flags;
     struct SHEET_MANAGER *ctl;
+    struct TASK *task;
 };
 
 typedef struct SHEET SHEET;

@@ -57,3 +57,64 @@ void api_putstrwin(int win, int x, int y, int col, int len, char *str);
  */ 
 void api_boxfilwin(int win, int x0, int y0, int x1, int y1, int col);
 
+/**
+ * @brief: Init memory management for malloc.
+ */ 
+void api_initmalloc();
+
+/**
+ * @brief: Malloc function.
+ * @param: (int)size: The size of the memory to assign.
+ * @return: (char *): The address of memory assigned.
+ */ 
+char *api_malloc(int size);
+
+/**
+ * @brief: Free function.
+ * @param: (char *)addr: The address of the memory to free.
+ * @param: (int)size: The size of the memory to free.
+ */ 
+void api_free(char *addr, int size);
+
+/**
+ * @brief: Draw a point on a window.
+ * @param: (int)win: Address of the window.
+ * @param: (int)x: The x position of the point.
+ * @param: (int)y: The y position of the point.
+ * @param: (int)col: The color of the point.
+ */ 
+void api_point(int win, int x, int y, int col);
+
+/**
+ * @brief: Refresh a window.
+ * @param: (int)win: Address of the window.
+ * @param: (int)x0: The x0 position of the area to refresh.
+ * @param: (int)y0: The y0 position of the area to refresh.
+ * @param: (int)x1: The x1 position of the area to refresh.
+ * @param: (int)y1: The y1 position of the area to refresh.
+ */ 
+void api_refreshwin(int win, int x0, int y0, int x1, int y1);
+
+/**
+ * @brief: Draw a line on a window.
+ * @param: (int)win: The address of the window.
+ * @param: (int)x0: The x0 position of the line.
+ * @param: (int)y0: The y0 position of the line.
+ * @param: (int)x1: The x1 position of the line.
+ * @param: (int)y1: The y1 position of the line.
+ * @param: (int)col: The color of the line.
+ */ 
+void api_linewin(int win, int x0, int y0, int x1, int y1, int col);
+
+/**
+ * @brief: Close a window.
+ * @param: (int)win: Address of the window.
+ */ 
+void api_closewin(int win);
+
+/**
+ * @brief: Wait and get a key inout from the keyboard.
+ * @param: (int)mode: The mode of the key you want.
+ * @return: (int): The key.
+ */ 
+int api_getkey(int mode);

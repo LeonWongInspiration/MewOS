@@ -59,6 +59,67 @@ void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0, i
 }
 
 void init_screen(char *vram, int x, int y){
+    MEMORY_FREE_TABLE *memman = (MEMORY_FREE_TABLE *)MEMORY_MANAGER_ADDR;
+    int *fat = (int *)allocMemoryForSize_Page(memman, 4 * 2880);
+    readFAT12(fat, (unsigned char *) (DISKIMG_ADDRESS + 0x000200));
+	FAT12 *wallpp = searchFile("wallpp.mjp", (FAT12 *) (DISKIMG_ADDRESS + 0x002600), 224);
+	char *p;
+	if (wallpp != NULL) {
+		p = (char *)allocMemoryForSize_Page(memman, wallpp->size);
+		loadFile(wallpp->clusterNo, wallpp->size, p, fat, (char *) (DISKIMG_ADDRESS + 0x003e00));
+	}
+	char wallPaper[320][240];
+	int a, b, c = 0;
+	for (a = 0; a < 320; ++a) {
+		for (b = 0; b < 240; ++b) {
+			if (p[c] == 0x0d) {
+				++c;
+			}
+			if (p[c] == 0x0a) {
+				++c;
+			}
+			if (p[c] >= '0' && p[c] <= '9') {
+				wallPaper[a][b] = p[c] - '0';
+			}
+			else if (p[c] >= 'A' && p[c] <= 'F') {
+				wallPaper[a][b] = p[c] - 'A' + 0xA;
+			}
+			++c;
+		}
+	}
+	freeMemoryWithAddrAndSize_Page(memman, (unsigned int) p, wallpp->size);
+
+	int i, j;
+	if (x == 320) {
+		for (i = 0; i < 320; ++i) {
+			for (j = 0; j < 240; ++j) {
+				*vram = wallPaper[i][j];
+				++vram;
+			}
+		}
+		return;
+	}
+	if (x == 640 && y == 480) {
+		for (i = 0; i < 640; ++i) {
+			for (j = 0; j < 480; ++j) {
+				*vram = wallPaper[i / 2][j / 2];
+				++vram;
+			}
+		}
+		return;
+	}
+	if (x == 1280 && y == 1024) {
+		for (i = 0; i < 1280; ++i) {
+			for (j = 0; j < 960; ++j) {
+				*vram = wallPaper[i / 4][j / 4];
+				++vram;
+			}
+		}
+		for (i = 0; i < 1280 * 1024 - 1280 * 960; ++i){
+			vram[i] = COL8_000000;
+		}
+		return;
+	}
 	boxfill8(vram, x, COL8_008484, 0, 0, x - 1, y - 29);
 	boxfill8(vram, x, COL8_C6C6C6, 0, y - 28, x - 1, y - 28);
 	boxfill8(vram, x, COL8_FFFFFF, 0, y - 27, x - 1, y - 27);
