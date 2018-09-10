@@ -21,6 +21,7 @@
 		GLOBAL	_api_inittimer
 		GLOBAL	_api_settimer
 		GLOBAL	_api_freetimer
+		GLOBAL	_api_beep
 
 [SECTION .text]
 
@@ -38,7 +39,7 @@ _api_putstr0:	; void api_putstr0(char *s);
 		POP		EBX
 		RET
 
-_api_end:	; void api_end(void);
+_api_end:	; void api_end();
 		MOV		EDX,4
 		INT		0x40
 
@@ -96,7 +97,7 @@ _api_boxfilwin:	; void api_boxfilwin(int win, int x0, int y0, int x1, int y1, in
 		POP		EDI
 		RET
 
-_api_initmalloc:	; void api_initmalloc(void);
+_api_initmalloc:	; void api_initmalloc();
 		PUSH	EBX
 		MOV		EDX,8
 		MOV		EBX,[CS:0x0020]		; malloc's address
@@ -191,7 +192,7 @@ _api_getkey:		; int api_getkey(int mode);
 		INT		0x40
 		RET
 
-_api_alloctimer:	; int api_alloctimer(void);
+_api_alloctimer:	; int api_alloctimer();
 		MOV		EDX,16
 		INT		0x40
 		RET
@@ -222,3 +223,8 @@ _api_freetimer:		; void api_freetimer(int timer);
 		POP		EBX
 		RET
 
+_api_beep:			; void api_beep(int tone);
+		MOV		EDX,20
+		MOV		EAX,[ESP+4]			; tone
+		INT		0x40
+		RET

@@ -144,3 +144,10 @@ void api_settimer(int timer, int time);
  * @param: (int)timer: Address of the timer.
  */ 
 void api_freetimer(int timer);
+
+/**
+ * @brief: Beep
+ * @param: (int)tone: The tone of the beep.
+ * @warning: This may not work on qemu virtual machines.
+ */ 
+void api_beep(int tone);
